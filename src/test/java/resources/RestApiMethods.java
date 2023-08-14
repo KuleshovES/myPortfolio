@@ -45,7 +45,7 @@ public class RestApiMethods {
         return userId;
     }
 
-    public static String createBoard(String nameBoard) {
+    public static String createBoard(Board board, String nameBoard) {
         try {
             LOGGER.info("Send request to create Board");
             boardId = given()
@@ -61,6 +61,7 @@ public class RestApiMethods {
             LOGGER.info("Failed Create board with name: " + nameBoard);
             throw ex;
         }
+
         return boardId;
     }
 
@@ -119,7 +120,7 @@ public class RestApiMethods {
             LOGGER.info("Result:" + respColumn);
 
         } catch (AssertionError ex) {
-            LOGGER.info("Failed GET/boards/" + boardId + "lists/");
+            LOGGER.info("Failed GET/boards/" + boardId + "/lists/");
             throw ex;
         }
         return column;
@@ -212,8 +213,8 @@ public class RestApiMethods {
         return columnName;
     }
 
-    public static void preconditionCreate () {
-        //String resBoardId = RestApiMethods.createBoard("myTestDesk15");
-        //String resColumnId = RestApiMethods.getColumn(resBoardId).get(0).id;
+    public static void preconditionCreate (Board board, Column column) {
+      createBoard("myTestDesk15");
+      //getColumn(resBoardId).get(0).id;
     }
 }

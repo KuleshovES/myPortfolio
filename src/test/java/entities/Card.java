@@ -30,6 +30,7 @@ public class Card {
     public Boolean getClosed() {
         return isClosed;
     }
+
 }
 
 

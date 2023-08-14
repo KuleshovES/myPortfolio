@@ -9,6 +9,10 @@ public class Column {
     public Boolean closed;
     public String idBoard;
 
+    public Column(String name, String idBoard) {
+        this.name = name;
+        this.idBoard = idBoard;
+    }
 
     public String getId() {
         return id;
