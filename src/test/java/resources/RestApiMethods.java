@@ -211,4 +211,9 @@ public class RestApiMethods {
         LOGGER.info("Find columnName: " + columnName);
         return columnName;
     }
+
+    public static void preconditionCreate () {
+        //String resBoardId = RestApiMethods.createBoard("myTestDesk15");
+        //String resColumnId = RestApiMethods.getColumn(resBoardId).get(0).id;
+    }
 }
