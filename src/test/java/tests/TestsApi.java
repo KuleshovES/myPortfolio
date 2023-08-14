@@ -1,8 +1,11 @@
 package tests;
 
+import org.testng.Assert;
 import org.testng.annotations.AfterTest;
 import org.testng.annotations.Test;
 import resources.RestApiMethods;
+
+import static resources.RestApiMethods.*;
 
 public class TestsApi {
 
@@ -14,46 +17,60 @@ public class TestsApi {
 
     @Test
     public void createBoard() throws InterruptedException {
-        RestApiMethods.createBoard("myTestDesk1");
-        //TODO add check create board (getBoard)
+        String resBoardId = RestApiMethods.createBoard("myTestDesk1");
+        Assert.assertEquals("myTestDesk1", getBoard(resBoardId).getName());
+        deleteBoard(resBoardId);
     }
 
     @Test
     public void createColumns() throws InterruptedException {
         String resBoardId = RestApiMethods.createBoard("myTestDesk12");
-        RestApiMethods.createColumns("MyTestListFirst", resBoardId);
-        RestApiMethods.createColumns("MyTestListSecond", resBoardId);
-        //TODO add check create column (getColumn)
+        String resultFirstColumn = RestApiMethods.createColumns("MyTestListFirst", resBoardId);
+        String resultSecondColumn = RestApiMethods.createColumns("MyTestListSecond", resBoardId);
+        Assert.assertEquals("MyTestListFirst", getFilteredNameColumn(resBoardId, resultFirstColumn));
+        Assert.assertEquals("MyTestListSecond", getFilteredNameColumn(resBoardId, resultSecondColumn));
+        deleteBoard(resBoardId);
+    }
+
+    @Test
+    public void checkGet() {
+        //test for fail
+        getCard("64da38d28fe02c8d11c6c0e5");
     }
 
     @Test
     public void createCards() throws InterruptedException {
         String resBoardId = RestApiMethods.createBoard("myTestDesk13");
         String resColumnId = RestApiMethods.createColumns("MyTestListFirst", resBoardId);
-        RestApiMethods.createCard(resColumnId, "MyFirstTask");
-        RestApiMethods.createCard(resColumnId, "MySecondTask");
-        RestApiMethods.createCard(resColumnId, "MyThirdTask");
-        //TODO add check create cards (getCards)
+        String resultFirstTask = RestApiMethods.createCard(resColumnId, "MyFirstTask");
+        String resultSecondTask = RestApiMethods.createCard(resColumnId, "MySecondTask");
+        String resultThirdTask = RestApiMethods.createCard(resColumnId, "MyThirdTask");
+        Assert.assertEquals("MyFirstTask", getCard(resultFirstTask).getName());
+        Assert.assertEquals("MySecondTask", getCard(resultSecondTask).getName());
+        Assert.assertEquals("MyThirdTask", getCard(resultThirdTask).getName());
+        deleteBoard(resBoardId);
     }
 
     @Test
     public void updateCard() throws InterruptedException {
         String resBoardId = RestApiMethods.createBoard("myTestDesk15");
         String resColumnId = RestApiMethods.getColumn(resBoardId).get(0).id;
-        String myFirstTask = RestApiMethods.createCard(resColumnId, "MyFirstTaskOriginalName");
-        String mySecondTask = RestApiMethods.createCard(resColumnId, "MySecondTaskOriginalName");
-        RestApiMethods.createCard(resColumnId, "MyThirdTaskOriginalName");
-        RestApiMethods.updateCard("newCardName_first", myFirstTask);
-        RestApiMethods.updateCard("newCardName_Second", mySecondTask);
-        //TODO
-        // add check create change Name (getCards)
+        String resultFirstTask = RestApiMethods.createCard(resColumnId, "MyFirstTaskOriginalName");
+        String resultSecondTask = RestApiMethods.createCard(resColumnId, "MySecondTaskOriginalName");
+        String resultThirdTask = RestApiMethods.createCard(resColumnId, "MyThirdTaskOriginalName");
+
+        RestApiMethods.updateCard("newCardName_first", resultFirstTask);
+        RestApiMethods.updateCard("newCardName_Second", resultSecondTask);
+
+        Assert.assertEquals("newCardName_first", getCard(resultFirstTask).getName());
+        Assert.assertEquals("newCardName_Second", getCard(resultSecondTask).getName());
+        Assert.assertEquals("MyThirdTaskOriginalName", getCard(resultThirdTask).getName());
+        deleteBoard(resBoardId);
     }
 
 
     @AfterTest
     public void clearSpaceInTrello() {
-        //TODO
-        //clear all data after test
         System.out.println("don't worry, I threw out the trash");
     }
 }

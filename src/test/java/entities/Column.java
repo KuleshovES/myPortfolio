@@ -9,4 +9,20 @@ public class Column {
     public Boolean closed;
     public String idBoard;
 
+
+    public String getId() {
+        return id;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public Boolean getClosed() {
+        return closed;
+    }
+
+    public String getIdBoard() {
+        return idBoard;
+    }
 }

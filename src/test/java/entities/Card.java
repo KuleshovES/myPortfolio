@@ -11,4 +11,25 @@ public class Card {
     @SerializedName("closed")
     public Boolean isClosed;
 
+    public String getId() {
+        return id;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public String getIdList() {
+        return idList;
+    }
+
+    public String getIdBoard() {
+        return idBoard;
+    }
+
+    public Boolean getClosed() {
+        return isClosed;
+    }
 }
+
+
