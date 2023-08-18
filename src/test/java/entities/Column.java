@@ -9,9 +9,9 @@ public class Column {
     public Boolean closed;
     public String idBoard;
 
-    public Column(String name, String idBoard) {
+    public Column(String name, Board board) {
         this.name = name;
-        this.idBoard = idBoard;
+        this.idBoard = board.getId();
     }
 
     public String getId() {
@@ -28,5 +28,21 @@ public class Column {
 
     public String getIdBoard() {
         return idBoard;
+    }
+
+    public void setId(String id) {
+        this.id = id;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public void setClosed(Boolean closed) {
+        this.closed = closed;
+    }
+
+    public void setIdBoard(String idBoard) {
+        this.idBoard = idBoard;
     }
 }

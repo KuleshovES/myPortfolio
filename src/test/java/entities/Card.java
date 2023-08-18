@@ -11,6 +11,10 @@ public class Card {
     @SerializedName("closed")
     public Boolean isClosed;
 
+    public Card(String name) {
+        this.name = name;
+    }
+
     public String getId() {
         return id;
     }
@@ -31,6 +35,25 @@ public class Card {
         return isClosed;
     }
 
+    public void setId(String id) {
+        this.id = id;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public void setIdList(String idList) {
+        this.idList = idList;
+    }
+
+    public void setIdBoard(String idBoard) {
+        this.idBoard = idBoard;
+    }
+
+    public void setClosed(Boolean closed) {
+        isClosed = closed;
+    }
 }
 
 

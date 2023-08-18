@@ -1,6 +1,7 @@
 package tests.Api;
 
 import entities.Board;
+import entities.Column;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 import resources.RestApiMethods;
@@ -10,23 +11,28 @@ import static resources.RestApiMethods.*;
 public class TestBoards {
     @Test
     public void createBoard() throws InterruptedException {
-        Board board = new Board("myTestDesk13");
-        String resBoardId = RestApiMethods.createBoard(board,"myTestDesk1");
-        Assert.assertEquals("myTestDesk1", getBoard(resBoardId).getName());
-        deleteBoard(resBoardId);
+        Board expectedBoard = RestApiMethods.preConditionBoard("myTestDesk13");
+        Board actualBoard = getBoard(expectedBoard.getId());
+        Assert.assertEquals(expectedBoard.getName(), actualBoard.getName());
+        deleteBoard(expectedBoard.getId());
     }
 
     @Test
     public void createColumns() throws InterruptedException {
-        Board board = new Board("myTestDesk13");
-        String resBoardId = RestApiMethods.createBoard(board,"myTestDesk12");
+        Board board = RestApiMethods.preConditionBoard("myTestDesk12");
+        Column expectedFirstColumn = RestApiMethods.preConditionColumn("MyTestListFirst", board);
+        Column expectedSecondColumn = RestApiMethods.preConditionColumn("MyTestListSecond", board);
 
-        String resultFirstColumn = RestApiMethods.createColumns("MyTestListFirst", resBoardId);
-        String resultSecondColumn = RestApiMethods.createColumns("MyTestListSecond", resBoardId);
+        RestApiMethods.createColumns(expectedFirstColumn, board);
+        String actualFirstColumn = getFilteredNameColumn(board, expectedFirstColumn);
 
-        Assert.assertEquals("MyTestListFirst", getFilteredNameColumn(resBoardId, resultFirstColumn));
-        Assert.assertEquals("MyTestListSecond", getFilteredNameColumn(resBoardId, resultSecondColumn));
-        //deleteBoard(resBoardId);
+        RestApiMethods.createColumns(expectedSecondColumn, board);
+        String actualSecondColumn = getFilteredNameColumn(board, expectedSecondColumn);
+
+        Assert.assertEquals(expectedFirstColumn.getName(), actualFirstColumn);
+        Assert.assertEquals(expectedSecondColumn.getName(), actualSecondColumn);
+        deleteBoard(board.getId());
+
     }
 
 

@@ -9,7 +9,6 @@ import entities.Column;
 import io.restassured.builder.RequestSpecBuilder;
 import io.restassured.http.ContentType;
 import io.restassured.specification.RequestSpecification;
-import org.testng.Assert;
 
 import java.util.List;
 import java.util.logging.Logger;
@@ -19,10 +18,7 @@ import static io.restassured.RestAssured.given;
 public class RestApiMethods {
     static String key = "071815818d26f6434f3fc4e0ee46fc56";
     static String token = "ATTAf983a9423e40ba35f912ae4d70b0351c23cde66706caad0584c53eb47b8cfddfFED14199";
-    static String boardId;
-    static String cardId;
-    static String columnId;
-    private static Logger LOGGER = Logger.getLogger(RestApiMethods.class.getName());
+    private static final Logger LOGGER = Logger.getLogger(RestApiMethods.class.getName());
 
     private static final RequestSpecification REQ_SPEC =
             new RequestSpecBuilder()
@@ -34,39 +30,67 @@ public class RestApiMethods {
                     .addQueryParam("token", token)
                     .build();
 
-    public static String getInfoUser() {
-        String userId = given()
+    public static void getInfoUser() {
+        String response = given()
                 .spec(REQ_SPEC)
                 .basePath("/members/me")
                 .when().get()
                 .then().statusCode(200)
-                .extract().jsonPath().get("id");
-        LOGGER.info("User_id: " + userId);
-        return userId;
+                .extract().body().asString();
+        LOGGER.info("RESPONSE:" + response);
+        // return userId;
     }
 
-    public static String createBoard(Board board, String nameBoard) {
+    public static void getListAllBoardsUser () {
+        String response;
+        //TODO get list with id boards and then delete they
+        try {
+            LOGGER.info("Send request to find All Boards");
+            response = given()
+                    .spec(REQ_SPEC)
+                    .basePath("/members/me")
+                    .when().get()
+                    .then().statusCode(200)
+                    .extract().body().asString();
+            LOGGER.info("RESPONSE:" + response);
+        }
+        catch (AssertionError ex) {
+            LOGGER.info("Failed to find All Boards");
+            throw ex;
+        }
+        Gson gson = new Gson();
+        //listBord.setId(gson.fromJson(response, Board.class).getId());
+        //return listBord;
+    }
+
+    public static void getListOpenBoardsUser () {
+
+    }
+
+    public static Board createBoard(Board board) {
+        String response;
         try {
             LOGGER.info("Send request to create Board");
-            boardId = given()
+            response = given()
                     .spec(REQ_SPEC)
                     .basePath("/boards/")
-                    .queryParams("name", nameBoard)
+                    .queryParams("name", board.getName())
                     .log().uri()
                     .when().post()
                     .then().statusCode(200)
-                    .extract().jsonPath().get("id");
-            LOGGER.info("Successful create board with id: " + boardId + "and name: " + nameBoard);
+                    .extract().body().asString();
+            LOGGER.info("RESPONSE:" + response);
         } catch (AssertionError ex) {
-            LOGGER.info("Failed Create board with name: " + nameBoard);
+            LOGGER.info("Failed Create board with name: " + board.getName());
             throw ex;
         }
-
-        return boardId;
+        Gson gson = new Gson();
+        board.setId(gson.fromJson(response, Board.class).getId());
+        return board;
     }
 
     public static Board getBoard(String boardId) {
-        String resGetBoard = null;
+        String resGetBoard;
         try {
             LOGGER.info("Start send request GET/boards/" + boardId);
             resGetBoard = given()
@@ -85,29 +109,33 @@ public class RestApiMethods {
         return board;
     }
 
-    public static String createColumns(String nameColumn, String boardId) {
+    public static Column createColumns(Column column, Board board) {
+        String responseColumn;
         try {
             LOGGER.info("Send request to create column");
-            columnId = given()
+            responseColumn = given()
                     .spec(REQ_SPEC)
-                    .basePath("/boards/" + boardId + "/lists")
-                    .queryParams("name", nameColumn)
+                    .basePath("/boards/" + board.getId() + "/lists")
+                    .queryParams("name", column.getName())
                     .log().uri()
                     .when().post()
                     .then().statusCode(200)
-                    .extract().jsonPath().get("id");
-            LOGGER.info("Create column with id: " + columnId);
+                    .extract().body().asString();
+            LOGGER.info("RESPONSE:" + responseColumn);
+            LOGGER.info("Create column with id: " + column.getId());
         } catch (AssertionError ex) {
-            LOGGER.info("Failed Create column with name: " + nameColumn);
+            LOGGER.info("Failed Create column with name: " + column.getName());
             throw ex;
         }
-        return columnId;
+        Gson gson = new Gson();
+        column.setId(gson.fromJson(responseColumn, Column.class).getId());
+        return column;
     }
 
     public static List<Column> getColumn(String boardId) {
-        List<Column> column = null;
+        List<Column> column;
         try {
-            LOGGER.info("Start send request GET/boards/" + boardId + "lists/");
+            LOGGER.info("Start send request GET/boards/" + boardId + "/lists/");
             String respColumn = given()
                     .spec(REQ_SPEC)
                     .basePath("/boards/" + boardId + "/lists")
@@ -127,24 +155,27 @@ public class RestApiMethods {
 
     }
 
-    public static String createCard(String columnId, String cardName) {
+    public static Card createCard(Column exColumn, Card exCard) {
+        String response;
         try {
             LOGGER.info("Send request to create cards");
-            cardId = given()
+            response = given()
                     .spec(REQ_SPEC)
                     .basePath("/cards")
-                    .queryParams("idList", columnId)
-                    .queryParams("name", cardName)
+                    .queryParams("idList", exColumn.getId())
+                    .queryParams("name", exCard.getName())
                     .log().uri()
                     .when().post()
                     .then().statusCode(200)
-                    .extract().jsonPath().get("id");
-            LOGGER.info("Create card with id: " + cardId + "and name: " + cardName);
+                    .extract().body().asString();
+            LOGGER.info("RESPONSE:" + response);
         } catch (AssertionError ex) {
-            LOGGER.info("Failed Create card with name: " + cardName + "in column: " + columnId);
+            LOGGER.info("Failed Create card with name: " + exCard.getName() + "in column: " + exColumn.getId());
             throw ex;
         }
-        return cardId;
+        Gson gson = new Gson();
+        exCard.setId(gson.fromJson(response, Card.class).getId());
+        return exCard;
     }
 
     public static void updateCard(String newCardName, String cardId) {
@@ -201,11 +232,11 @@ public class RestApiMethods {
         }
     }
 
-    public static String getFilteredNameColumn(String boardId, String columnId) {
-        LOGGER.info("Start filter");
-        String columnName = getColumn(boardId)
+    public static String getFilteredNameColumn(Board exBoard, Column exColumn) {
+        LOGGER.info("Start filter2");
+        String columnName = getColumn(exBoard.getId())
                 .stream()
-                .filter(column -> column.getId().equals(columnId))
+                .filter(column -> column.getId().equals(exColumn.getId()))
                 .findFirst()
                 .orElseThrow(() -> new AssertionError("element not found"))
                 .getName();
@@ -213,8 +244,33 @@ public class RestApiMethods {
         return columnName;
     }
 
-    public static void preconditionCreate (Board board, Column column) {
-      createBoard("myTestDesk15");
-      //getColumn(resBoardId).get(0).id;
+    public static Board preConditionBoard(String boardName) {
+        Board board = new Board(boardName);
+        RestApiMethods.createBoard(board);
+        return board;
+
+    }
+
+    public static Column preConditionColumn(String columnName, Board board) {
+        Column column = new Column(columnName, board);
+        RestApiMethods.createColumns(column, board);
+        return column;
+
+    }
+
+    public static Card preConditionCard (Column column, Card externCard) {
+        RestApiMethods.createCard(column, externCard);
+        return externCard;
+
+    }
+
+    public static Board createFullBoard(String boardName, String columnName , String firstCardName, String secondCardName) {
+        Board board = RestApiMethods.preConditionBoard(boardName);
+        Column column = RestApiMethods.preConditionColumn(columnName, board);
+        Card firstCard = new Card(firstCardName);
+        Card secondCard = new Card(secondCardName);
+        RestApiMethods.preConditionCard(column, firstCard);
+        RestApiMethods.preConditionCard(column, secondCard);
+        return board;
     }
 }
