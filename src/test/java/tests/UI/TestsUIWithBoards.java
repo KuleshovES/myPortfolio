@@ -1,45 +1,50 @@
 package tests.UI;
 
+import org.testng.Assert;
 import org.testng.annotations.BeforeTest;
 import org.testng.annotations.Test;
 import resources.ConfProperties;
+import resources.RestApiMethods;
 import trello.BasePage;
 import trello.LoginPage;
+
+import java.sql.SQLOutput;
 
 import static resources.ConfProperties.driver;
 
 public class TestsUIWithBoards {
-    @BeforeTest
+   /* @BeforeTest
     public void setUpTest() throws InterruptedException {
         driver = ConfProperties.chrome();
         LoginPage.login();
-    }
+    }*/
 
     @Test
     public void createBoardSimpleUI() throws InterruptedException {
-        /*Precondition: TestUIAuthorization
-        Steps:
-        1) click crete Board
-        2) input boardName
-        3) choose space
-        4) confirm create */
+        driver = ConfProperties.preconditionForTest();
+        System.out.println("id Chrome: " + driver.getWindowHandle());
 
-        BasePage basePage = new BasePage();
-        basePage.createNewBoard();
-
+        BasePage expectedBoard = new BasePage();
+        expectedBoard.createNewBoard("createBoardSimpleUI");
+        Assert.assertEquals("createBoardSimpleUI", expectedBoard.getActualNameActiveBoard());
+        expectedBoard.closedBoard();
+        expectedBoard.deleteBoard();
+        driver.close();
     }
 
     @Test
     public void createBoardWithTemplateUI() throws InterruptedException {
-        /*Precondition: TestUIAuthorization
-        Steps:
-        1) click crete Board
-        2) input boardName
-        3) choose template
-        4) confirm create */
+        driver = ConfProperties.preconditionForTest();
+        System.out.println("id Chrome: " + driver.getWindowHandle());
 
         BasePage basePage = new BasePage();
-        basePage.createNewBoardFromTemplate();
+        basePage.createNewBoardFromTemplate("createBoardWithTemplateUI");
+
+        Assert.assertEquals("createBoardWithTemplateUI", basePage.getActualNameActiveBoard());
+
+        basePage.closedBoard();
+        basePage.deleteBoard();
+        driver.close();
     }
 
     @Test

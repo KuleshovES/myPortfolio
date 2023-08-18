@@ -1,41 +1,73 @@
 package tests.UI;
 
-import org.testng.annotations.BeforeTest;
+import entities.Board;
+import org.openqa.selenium.By;
+import org.openqa.selenium.Keys;
+import org.testng.Assert;
+import org.testng.annotations.AfterMethod;
+import org.testng.annotations.AfterTest;
+import org.testng.annotations.Ignore;
 import org.testng.annotations.Test;
 import resources.ConfProperties;
-import trello.LoginPage;
+import resources.RestApiMethods;
+import trello.BoardPage;
 
 import static resources.ConfProperties.driver;
 
 public class TestsUIWithCards {
-    @BeforeTest
-    public void setUpTest() throws InterruptedException {
-        driver = ConfProperties.chrome();
-        LoginPage.login();
+
+    @Test
+    public void createCardUI() throws InterruptedException {
+        Board expectedBoard = RestApiMethods.preConditionBoard("myTestCreateCardUI");
+        driver = ConfProperties.preconditionForTest();
+
+        BoardPage boardPage = new BoardPage();
+        boardPage.openBoard("myTestCreateCardUI");
+        boardPage.createCard("CardNameTestUI");
+
+        Assert.assertEquals("CardNameTestUI", boardPage.getActualCardNameInActiveBoard());
+
+        RestApiMethods.deleteBoard(expectedBoard.getId());
+        driver.close();
     }
 
     @Test
-    public void createCardUI() {
-        /*Precondition: sigInUI + board exists + open board
-        Steps:
-        1) click crete Card
-        2) input cardName
-        3) confirm create */
+    public void updateCardUI() throws InterruptedException {
+
+        Board newBoard = RestApiMethods
+                .createFullBoard("updateCardUI", "Backlog", "FirstTask", "SecondTask");
+        driver = ConfProperties.preconditionForTest();
+
+        BoardPage boardPage = new BoardPage();
+        boardPage.openBoard("updateCardUI");
+
+        String actNameFirstCard = boardPage.getActualCardNameInActiveBoard();
+        boardPage.updateCardName("NewCardName");
+
+        Assert.assertNotEquals("FirstTask", actNameFirstCard);
+
+        RestApiMethods.deleteBoard(newBoard.getId());
+        driver.close();
 
     }
 
-    @Test
-    public void updateCardUI() {
-        /*Precondition: sigInUI + board exists + open board + card Exists
-        Steps:
-        1) choose card and click on edit
-        2) change name card
-        3) click on "save"
-        4) check new card name */
-    }
 
     @Test
-    public void copyCardUI() {
+    public void copyCardUI() throws InterruptedException {
+        String newNameCopiedCard = "Copied card";
+        Board newBoard = RestApiMethods
+                .createFullBoard("copyCardUI", "Backlog", "FirstTask", "SecondTask");
+        driver = ConfProperties.preconditionForTest();
+        BoardPage boardPage = new BoardPage();
+        boardPage.openBoard("copyCardUI");
+        boardPage.copyCard(newNameCopiedCard);
+
+        Assert.assertNotEquals("FirstTask", newNameCopiedCard);
+
+        RestApiMethods.deleteBoard(newBoard.getId());
+        driver.close();
+
+
         /*Precondition: sigInUI + board exists + open board + card Exists
         Steps:
         1) choose card and click on edit
@@ -44,8 +76,10 @@ public class TestsUIWithCards {
 
     }
 
+    @Ignore
     @Test
     public void deleteCardUI() {
+        RestApiMethods.preConditionBoard("myTestDeleteCardUI");
         /*Precondition: sigInUI + board exists + open board + card Exists
         Steps:
         1) choose card and click on edit
@@ -54,8 +88,10 @@ public class TestsUIWithCards {
 
     }
 
+    @Ignore
     @Test
     public void dragCardUI() {
+        RestApiMethods.preConditionBoard("myTestDragCardUI");
         /*Precondition: sigInUI + board exists + open board + card Exists
         Steps:
         1) choose card and check column = first
@@ -64,6 +100,7 @@ public class TestsUIWithCards {
 
     }
 
+    @Ignore
     @Test
     public void addLabelToCardUI() {
         /*Precondition: sigInUI + board exists + open board + card Exists
@@ -76,6 +113,7 @@ public class TestsUIWithCards {
 
     }
 
+    @Ignore
     @Test
     public void filteredCardOnBoardUI() {
         /*Precondition: sigInUI + board exists + open board + card exist
@@ -84,5 +122,7 @@ public class TestsUIWithCards {
         2) input text (cardName)
         3) check result = 1 card display */
     }
+
+
 
 }

@@ -21,7 +21,7 @@ public class TestUIOther {
     @Test
     public void fillBoard () throws InterruptedException {
         BasePage basePage = new BasePage();
-        basePage.createNewBoard();
+        basePage.createNewBoard("sdsd");
 
         BoardPage board = new BoardPage();
         board.createColumn("Backlog");

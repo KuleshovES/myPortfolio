@@ -3,11 +3,9 @@ package resources;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.chrome.ChromeOptions;
-import org.openqa.selenium.support.ui.WebDriverWait;
+import trello.LoginPage;
 
-import java.io.FileInputStream;
 import java.time.Duration;
-import java.util.Properties;
 
 public class ConfProperties {
 
@@ -21,4 +19,11 @@ public class ConfProperties {
         driver.manage().timeouts().implicitlyWait(Duration.ofSeconds(5));
         return driver;
     }
+
+    public static WebDriver preconditionForTest () throws InterruptedException {
+        driver = chrome();
+        LoginPage.login();
+        return driver;
+    }
+
 }
