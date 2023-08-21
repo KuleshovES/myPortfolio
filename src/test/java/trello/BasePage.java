@@ -1,19 +1,19 @@
 package trello;
 
 import org.openqa.selenium.By;
+import org.openqa.selenium.NoSuchElementException;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
 
 import java.time.Duration;
 
+import static resources.ConfProperties.LOGGER;
 import static resources.ConfProperties.driver;
 
 public class BasePage {
     public static final WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(5));
     public static final WebElement buttonCreateNewBoard = driver.findElement(By.xpath("//*[@data-testid=\"create-board-tile\"]/div"));
-    public static final WebElement buttonViewClosedBoards = driver.findElement(By.cssSelector(".view-all-closed-boards-button"));
-    //public static final WebElement dropdownWorkSpace = driver.findElement(By.cssSelector(".nch-select"));
 
     String InputNameBoard = "//*[@data-testid=\"create-board-title-input\"]";
     String DisplayNameBoard = "//*[@data-testid=\"board-name-display\"]";
@@ -21,9 +21,18 @@ public class BasePage {
     String ButtonCreateFromTemplate = "//*[@data-testid=\"create-from-template-button\"]";
     String FirstElementTemplate = "div.o2d0gKBosLRXMb > div > ul > li:nth-child(1)";//может переделать?
 
+    String buttonLogInHomePage = "//a[contains(text(),'Log in')]";
+
+    //account-info-menu
+    String buttonOpenAccountMenu = "//*[@data-testid=\"header-member-menu-button\"]";
+    String buttonLogOutAccountMenu = "//*[@data-testid=\"account-menu-logout\"]";
+    String buttonConfirmLogOut = "logout-submit";
+
+    //TODO change language
     String actionMenu = "//*[@aria-label=\"Меню\"]";
-    String actionMenuButtonClosedBoard = ".js-close-board";
     String actionMenuConfirmClosedBoard = "//*[@value=\"Закрыть\"]";
+
+    String actionMenuButtonClosedBoard = ".js-close-board";
     String buttonDeleteClosedBoard = "//*[@data-testid=\"close-board-delete-board-button\"]";
     String buttonConfirmDeleteClosedBoard = "//*[@data-testid=\"close-board-delete-board-confirm-button\"]";
 
@@ -49,10 +58,37 @@ public class BasePage {
         wait.until(ExpectedConditions.elementToBeClickable(By.xpath(ButtonApplyCreateNewBoard))).click();
     }
 
-    public static void showClosedBoards() {
-        buttonViewClosedBoards.click();
+    public void openAccountMenu () {
+        driver.findElement(By.xpath(buttonOpenAccountMenu)).click();
 
     }
+
+    public String getCurrentUserName() {
+        openAccountMenu();
+        String locCurrentUserName = "//div[contains(@class, \"tS3UagTaVXEivA\")]";
+        return driver.findElement(By.xpath(locCurrentUserName)).getAttribute("textContent");
+    }
+
+    public void logOut () {
+        openAccountMenu();
+        wait.until(ExpectedConditions.elementToBeClickable(By.xpath(buttonLogOutAccountMenu))).click();
+        wait.until(ExpectedConditions.elementToBeClickable(By.id(buttonConfirmLogOut))).click();
+    }
+
+    public boolean mainPageIsOpen () {
+        boolean result;
+
+        try {
+            result = (driver.findElement(By.xpath(buttonLogInHomePage)).isDisplayed());
+            LOGGER.info("Your tab: " + driver.getCurrentUrl());
+        } catch (NoSuchElementException ex) {
+            result = false;
+            LOGGER.info("Your tab: " + driver.getCurrentUrl());
+        }
+        return result;
+
+    }
+
 
     public String getActualNameActiveBoard() {
         String name = driver.findElement(By.xpath(DisplayNameBoard))

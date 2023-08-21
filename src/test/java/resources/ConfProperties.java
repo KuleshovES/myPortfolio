@@ -6,8 +6,10 @@ import org.openqa.selenium.chrome.ChromeOptions;
 import trello.LoginPage;
 
 import java.time.Duration;
+import java.util.logging.Logger;
 
 public class ConfProperties {
+    public static final Logger LOGGER = Logger.getLogger(RestApiMethods.class.getName());
 
     public static WebDriver driver;
 
@@ -20,7 +22,7 @@ public class ConfProperties {
         return driver;
     }
 
-    public static WebDriver preconditionForTest () throws InterruptedException {
+    public static WebDriver preconditionWithLogin() throws InterruptedException {
         driver = chrome();
         LoginPage.login();
         return driver;

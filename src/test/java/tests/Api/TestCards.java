@@ -4,7 +4,6 @@ import entities.Board;
 import entities.Card;
 import entities.Column;
 import org.testng.Assert;
-import org.testng.annotations.Ignore;
 import org.testng.annotations.Test;
 import resources.RestApiMethods;
 
@@ -38,7 +37,7 @@ public class TestCards {
         RestApiMethods.createCard(column, firstCard);
         RestApiMethods.createCard(column, secondCard);
 
-        RestApiMethods.updateCard("newCardName_first", firstCard.getId());
+        RestApiMethods.updateCard("name","newCardName_first", firstCard.getId());
         Card actualFirstCard = getCard(firstCard.getId());
         Card actualSecondCard = getCard(secondCard.getId());
 

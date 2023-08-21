@@ -1,27 +1,34 @@
 package tests.UI;
 
+import entities.User;
+import org.testng.Assert;
 import org.testng.annotations.Test;
+import resources.ConfProperties;
+import resources.RestApiMethods;
+import trello.BasePage;
+
+import static resources.ConfProperties.driver;
 
 public class TestUIAuthorization {
 
     @Test
-    public void sigInUI() {
-        /*
-        Steps:
-        1) click button SignIn
-        2) input login/pass
-        3) confirm
-        4) check current user = input user */
+    public void sigInUI() throws InterruptedException{
+        driver = ConfProperties.preconditionWithLogin();
+        User user = new User();
+        BasePage basePage = new BasePage();
+
+        Assert.assertEquals(basePage.getCurrentUserName(),  RestApiMethods.getInfoUser(user).getFullName());
+
     }
 
     @Test
-    public void logOutUI () {
-        /*Precondition: sigInUI
-        Steps:
-        1) click button Profile
-        2) click button logOut
-        3) confirm
-        4) check */
+    public void logOutUI () throws InterruptedException{
+        driver = ConfProperties.preconditionWithLogin();
+        BasePage basePage = new BasePage();
+
+        basePage.logOut();
+        Assert.assertTrue(basePage.mainPageIsOpen());
+
     }
 
 }

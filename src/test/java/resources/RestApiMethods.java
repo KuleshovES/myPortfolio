@@ -6,6 +6,7 @@ import com.google.gson.Gson;
 import entities.Board;
 import entities.Card;
 import entities.Column;
+import entities.User;
 import io.restassured.builder.RequestSpecBuilder;
 import io.restassured.http.ContentType;
 import io.restassured.specification.RequestSpecification;
@@ -30,22 +31,10 @@ public class RestApiMethods {
                     .addQueryParam("token", token)
                     .build();
 
-    public static void getInfoUser() {
-        String response = given()
-                .spec(REQ_SPEC)
-                .basePath("/members/me")
-                .when().get()
-                .then().statusCode(200)
-                .extract().body().asString();
-        LOGGER.info("RESPONSE:" + response);
-        // return userId;
-    }
-
-    public static void getListAllBoardsUser () {
+    public static User getInfoUser(User user) {
         String response;
-        //TODO get list with id boards and then delete they
         try {
-            LOGGER.info("Send request to find All Boards");
+            LOGGER.info("Start get info about user");
             response = given()
                     .spec(REQ_SPEC)
                     .basePath("/members/me")
@@ -55,16 +44,17 @@ public class RestApiMethods {
             LOGGER.info("RESPONSE:" + response);
         }
         catch (AssertionError ex) {
-            LOGGER.info("Failed to find All Boards");
+            LOGGER.info("Failed get info about user");
             throw ex;
         }
         Gson gson = new Gson();
-        //listBord.setId(gson.fromJson(response, Board.class).getId());
-        //return listBord;
-    }
-
-    public static void getListOpenBoardsUser () {
-
+        user.setId(gson.fromJson(response, User.class).getId());
+        user.setEmail(gson.fromJson(response, User.class).getEmail());
+        user.setFullName(gson.fromJson(response, User.class).getFullName());
+        user.setUsername(gson.fromJson(response, User.class).getUsername());
+        user.setIdBoards(gson.fromJson(response, User.class).getIdBoards());
+        user.setIdOrganizations(gson.fromJson(response, User.class).getIdOrganizations());
+        return user;
     }
 
     public static Board createBoard(Board board) {
@@ -178,23 +168,22 @@ public class RestApiMethods {
         return exCard;
     }
 
-    public static void updateCard(String newCardName, String cardId) {
+    public static void updateCard(String queryParams, String valueParams, String cardId) {
         try {
             LOGGER.info("Send request to update cards");
             given()
                     .spec(REQ_SPEC)
                     .basePath("/cards/" + cardId)
-                    .queryParams("name", newCardName)
+                    .queryParams(queryParams, valueParams)
                     .log().uri()
                     .when().put()
                     .then().statusCode(200);
             LOGGER.info("Card id:" + cardId + "successfully update");
-            LOGGER.info("New card name: " + newCardName);
+            LOGGER.info("New value for " + queryParams + "=" + valueParams);
         } catch (AssertionError ex) {
             LOGGER.info("Failed update card id: " + cardId);
             throw ex;
         }
-
     }
 
     public static Card getCard(String cardId) {
@@ -258,13 +247,13 @@ public class RestApiMethods {
 
     }
 
-    public static Card preConditionCard (Column column, Card externCard) {
+    public static Card preConditionCard(Column column, Card externCard) {
         RestApiMethods.createCard(column, externCard);
         return externCard;
 
     }
 
-    public static Board createFullBoard(String boardName, String columnName , String firstCardName, String secondCardName) {
+    public static Board createFullBoard(String boardName, String columnName, String firstCardName, String secondCardName) {
         Board board = RestApiMethods.preConditionBoard(boardName);
         Column column = RestApiMethods.preConditionColumn(columnName, board);
         Card firstCard = new Card(firstCardName);
@@ -272,5 +261,22 @@ public class RestApiMethods {
         RestApiMethods.preConditionCard(column, firstCard);
         RestApiMethods.preConditionCard(column, secondCard);
         return board;
+    }
+
+    public static void closedBoard (String boardId) {
+        try {
+            LOGGER.info("Send request to closed Board");
+            given()
+                    .spec(REQ_SPEC)
+                    .basePath("/boards/" + boardId)
+                    .queryParams("closed", "true")
+                    .log().uri()
+                    .when().put()
+                    .then().statusCode(200);
+            LOGGER.info("Board id:" + boardId + "successfully closed");
+        } catch (AssertionError ex) {
+            LOGGER.info("Failed closed Board id: " + boardId);
+            throw ex;
+        }
     }
 }

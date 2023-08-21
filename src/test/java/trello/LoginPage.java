@@ -35,4 +35,6 @@ public class LoginPage {
         wait.until(ExpectedConditions.visibilityOfAllElementsLocatedBy(By.cssSelector(".content-all-boards")));
     }
 
+
+
 }
