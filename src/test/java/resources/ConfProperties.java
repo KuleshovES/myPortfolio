@@ -1,5 +1,6 @@
 package resources;
 
+import entities.Board;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.chrome.ChromeOptions;
@@ -28,4 +29,12 @@ public class ConfProperties {
         return driver;
     }
 
+
+    public static void clearDataAndCloseDriver () {
+        RestApiMethods.closedAllBoards();
+    }
+
+    public static void clearDataUI (Board board) {
+        RestApiMethods.deleteBoard(board.getId());
+    }
 }

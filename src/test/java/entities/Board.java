@@ -44,3 +44,4 @@ public class Board {
         this.idMemberCreator = idMemberCreator;
     }
 }
+

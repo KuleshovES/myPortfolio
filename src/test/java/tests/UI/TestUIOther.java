@@ -1,8 +1,10 @@
 package tests.UI;
 
+import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeTest;
 import org.testng.annotations.Test;
 import resources.ConfProperties;
+import resources.RestApiMethods;
 import trello.BasePage;
 import trello.BoardPage;
 import trello.LoginPage;
@@ -34,5 +36,13 @@ public class TestUIOther {
 
 
     }
+
+    @AfterMethod
+    public void clearAndCloseAfterTest() throws InterruptedException {
+        RestApiMethods.closedAllBoards();
+        Thread.sleep(1000);
+        driver.close();
+    }
+
 
 }

@@ -2,6 +2,7 @@ package tests.UI;
 
 import entities.Board;
 import org.testng.Assert;
+import org.testng.annotations.AfterMethod;
 import org.testng.annotations.Test;
 import resources.ConfProperties;
 import resources.RestApiMethods;
@@ -14,53 +15,60 @@ public class TestsUIWithBoards {
 
     @Test
     public void createBoardSimpleUI() throws InterruptedException {
+        //precondition
         driver = ConfProperties.preconditionWithLogin();
         BasePage expectedBoard = new BasePage();
+
+        //test
         expectedBoard.createNewBoard("createBoardSimpleUI");
         Assert.assertEquals("createBoardSimpleUI", expectedBoard.getActualNameActiveBoard());
-        expectedBoard.closedBoard();
-        expectedBoard.deleteBoard();
-        driver.close();
+
     }
 
     @Test
     public void createBoardWithTemplateUI() throws InterruptedException {
+        //precondition
         driver = ConfProperties.preconditionWithLogin();
-
         BasePage basePage = new BasePage();
-        basePage.createNewBoardFromTemplate("createBoardWithTemplateUI");
 
+        //test
+        basePage.createNewBoardFromTemplate("createBoardWithTemplateUI");
         Assert.assertEquals("createBoardWithTemplateUI", basePage.getActualNameActiveBoard());
 
-        basePage.closedBoard();
-        basePage.deleteBoard();
-        driver.close();
     }
 
     @Test
     public void updateBoardUI() throws InterruptedException {
-        //-------Precondition
+        //precondition
         Board newBoard = RestApiMethods
                 .createFullBoard("updateCardUI", "Backlog", "FirstTask", "SecondTask");
         driver = ConfProperties.preconditionWithLogin();
         BoardPage boardPage = new BoardPage();
         boardPage.openBoard("updateCardUI");
-        //-------
+
+        //test
+
     }
 
     @Test
     public void showClosedBoards() throws InterruptedException {
-        //-------Precondition unusual
+        //precondition unusual
         Board newBoard = RestApiMethods
                 .createFullBoard("showClosedBoards", "Backlog", "FirstTask", "SecondTask");
         driver = ConfProperties.preconditionWithLogin();
         RestApiMethods.closedBoard(newBoard.getId());
         BoardPage boardPage = new BoardPage();
-        //---
-        Assert.assertTrue(boardPage.showClosedBoards());
-        //-------
-        driver.close();
 
+        //test
+        Assert.assertTrue(boardPage.showClosedBoards());
+
+    }
+
+    @AfterMethod
+    public void clearAndCloseAfterTest() throws InterruptedException {
+        RestApiMethods.closedAllBoards();
+        Thread.sleep(1000);
+        driver.close();
     }
 
 }

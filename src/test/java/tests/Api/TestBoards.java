@@ -3,6 +3,7 @@ package tests.Api;
 import entities.Board;
 import entities.Column;
 import org.testng.Assert;
+import org.testng.annotations.AfterMethod;
 import org.testng.annotations.Test;
 import resources.RestApiMethods;
 
@@ -14,7 +15,6 @@ public class TestBoards {
         Board expectedBoard = RestApiMethods.preConditionBoard("myTestDesk13");
         Board actualBoard = getBoard(expectedBoard.getId());
         Assert.assertEquals(expectedBoard.getName(), actualBoard.getName());
-        deleteBoard(expectedBoard.getId());
     }
 
     @Test
@@ -31,8 +31,12 @@ public class TestBoards {
 
         Assert.assertEquals(expectedFirstColumn.getName(), actualFirstColumn);
         Assert.assertEquals(expectedSecondColumn.getName(), actualSecondColumn);
-        deleteBoard(board.getId());
 
+    }
+
+    @AfterMethod
+    public void clearData () {
+        RestApiMethods.closedAllBoards();
     }
 
 

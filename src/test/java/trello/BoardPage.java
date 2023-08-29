@@ -9,9 +9,11 @@ import java.time.Duration;
 
 import static resources.ConfProperties.LOGGER;
 import static resources.ConfProperties.driver;
+//import static resources.ConfProperties.driver;
 
 public class BoardPage {
-    public static final WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(3));
+
+    public final WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(3));
 
     String firstCardInActiveBoard = "//*[@class=\"list-card-title js-card-name\"]";
     String defaultSecondTask = "//span[text()='SecondTask']";
@@ -43,6 +45,8 @@ public class BoardPage {
     String addLabelBlue = "//div[@data-color=\"blue\"]";
 
 
+
+
     public void createColumn(String nameColumn) {
         driver.findElement(By.cssSelector(buttonAddNewColumn)).click();
         wait.until(ExpectedConditions.elementToBeClickable(By.cssSelector(".list-name-input")))
@@ -68,8 +72,7 @@ public class BoardPage {
     public void openBoard(String nameBoard) {
         String locatorBoard = "//*[@title=\"" + nameBoard + "\"]";
         wait.until(ExpectedConditions.elementToBeClickable(By.xpath(locatorBoard)));
-        driver.findElement(By.xpath(locatorBoard))
-                .click();
+        driver.findElement(By.xpath(locatorBoard)).click();
 
     }
 

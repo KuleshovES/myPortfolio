@@ -13,20 +13,22 @@ import static resources.ConfProperties.driver;
 
 public class BasePage {
     public static final WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(5));
-    public static final WebElement buttonCreateNewBoard = driver.findElement(By.xpath("//*[@data-testid=\"create-board-tile\"]/div"));
+
+    String buttonCreateNewBoard = "//*[@data-testid=\"create-board-tile\"]/div";
 
     String InputNameBoard = "//*[@data-testid=\"create-board-title-input\"]";
     String DisplayNameBoard = "//*[@data-testid=\"board-name-display\"]";
     String ButtonApplyCreateNewBoard = "//*[@data-testid=\"create-board-submit-button\"]";
     String ButtonCreateFromTemplate = "//*[@data-testid=\"create-from-template-button\"]";
     String FirstElementTemplate = "div.o2d0gKBosLRXMb > div > ul > li:nth-child(1)";//может переделать?
+    String buttonMainPage = "//*[@id=\"header\"]/a";
 
     String buttonLogInHomePage = "//a[contains(text(),'Log in')]";
 
     //account-info-menu
-    String buttonOpenAccountMenu = "//*[@data-testid=\"header-member-menu-button\"]";
-    String buttonLogOutAccountMenu = "//*[@data-testid=\"account-menu-logout\"]";
-    String buttonConfirmLogOut = "logout-submit";
+    static String buttonOpenAccountMenu = "//*[@data-testid=\"header-member-menu-button\"]";
+    static String buttonLogOutAccountMenu = "//*[@data-testid=\"account-menu-logout\"]";
+    static String buttonConfirmLogOut = "logout-submit";
 
     //TODO change language
     String actionMenu = "//*[@aria-label=\"Меню\"]";
@@ -38,8 +40,8 @@ public class BasePage {
 
     public void createNewBoard(String boardNameUI) {
         System.out.println("Start create new Board: " + boardNameUI);
-        wait.until(ExpectedConditions.elementToBeClickable(buttonCreateNewBoard));
-        buttonCreateNewBoard.click();
+        wait.until(ExpectedConditions.elementToBeClickable(driver.findElement(By.xpath(buttonCreateNewBoard))));
+        driver.findElement(By.xpath(buttonCreateNewBoard)).click();
         driver.findElement(By.xpath(InputNameBoard))
                 .sendKeys(boardNameUI);
         driver.findElement(By.xpath(ButtonApplyCreateNewBoard)).click();
@@ -47,8 +49,8 @@ public class BasePage {
 
     public void createNewBoardFromTemplate(String boardNameUI) {
         System.out.println("Start create new Board From Template: " + boardNameUI);
-        wait.until(ExpectedConditions.elementToBeClickable(buttonCreateNewBoard));
-        buttonCreateNewBoard.click();
+        wait.until(ExpectedConditions.elementToBeClickable(driver.findElement(By.xpath(buttonCreateNewBoard))));
+        driver.findElement(By.xpath(buttonCreateNewBoard)).click();
         driver.findElement(By.xpath(ButtonCreateFromTemplate)).click();
         wait.until(ExpectedConditions.elementToBeClickable(By.cssSelector(FirstElementTemplate))).click();
         driver.findElement(By.xpath(InputNameBoard))
@@ -58,7 +60,7 @@ public class BasePage {
         wait.until(ExpectedConditions.elementToBeClickable(By.xpath(ButtonApplyCreateNewBoard))).click();
     }
 
-    public void openAccountMenu () {
+    public static void openAccountMenu() {
         driver.findElement(By.xpath(buttonOpenAccountMenu)).click();
 
     }
@@ -69,7 +71,7 @@ public class BasePage {
         return driver.findElement(By.xpath(locCurrentUserName)).getAttribute("textContent");
     }
 
-    public void logOut () {
+    public static void logOut() {
         openAccountMenu();
         wait.until(ExpectedConditions.elementToBeClickable(By.xpath(buttonLogOutAccountMenu))).click();
         wait.until(ExpectedConditions.elementToBeClickable(By.id(buttonConfirmLogOut))).click();
@@ -108,6 +110,11 @@ public class BasePage {
         wait.until(ExpectedConditions.elementToBeClickable(By.xpath(buttonDeleteClosedBoard))).click();
         wait.until(ExpectedConditions.elementToBeClickable(By.xpath(buttonConfirmDeleteClosedBoard))).click();
 
+    }
+
+    public void openMainPage() throws InterruptedException {
+        wait(5000);
+        driver.findElement(By.xpath(buttonMainPage)).click();
     }
 }
 

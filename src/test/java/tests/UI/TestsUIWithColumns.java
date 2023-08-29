@@ -2,6 +2,7 @@ package tests.UI;
 
 import entities.Board;
 import org.testng.Assert;
+import org.testng.annotations.AfterMethod;
 import org.testng.annotations.Test;
 import resources.ConfProperties;
 import resources.RestApiMethods;
@@ -24,9 +25,13 @@ public class TestsUIWithColumns {
         boardPage.createColumn("myTestColumn");
         Assert.assertTrue(boardPage.columnByNameIsDisplayed("myTestColumn"));
 
-        //-------delete
-        RestApiMethods.deleteBoard(newBoard.getId());
-        driver.close();
-        //-------
     }
+
+    @AfterMethod
+    public void clearAndCloseAfterTest() throws InterruptedException {
+        RestApiMethods.closedAllBoards();
+        Thread.sleep(1000);
+        driver.close();
+    }
+
 }

@@ -2,6 +2,7 @@ package tests.UI;
 
 import entities.User;
 import org.testng.Assert;
+import org.testng.annotations.AfterMethod;
 import org.testng.annotations.Test;
 import resources.ConfProperties;
 import resources.RestApiMethods;
@@ -12,17 +13,17 @@ import static resources.ConfProperties.driver;
 public class TestUIAuthorization {
 
     @Test
-    public void sigInUI() throws InterruptedException{
+    public void sigInUI() throws InterruptedException {
         driver = ConfProperties.preconditionWithLogin();
         User user = new User();
         BasePage basePage = new BasePage();
 
-        Assert.assertEquals(basePage.getCurrentUserName(),  RestApiMethods.getInfoUser(user).getFullName());
+        Assert.assertEquals(basePage.getCurrentUserName(), RestApiMethods.getInfoUser(user).getFullName());
 
     }
 
     @Test
-    public void logOutUI () throws InterruptedException{
+    public void logOutUI() throws InterruptedException {
         driver = ConfProperties.preconditionWithLogin();
         BasePage basePage = new BasePage();
 
@@ -31,4 +32,8 @@ public class TestUIAuthorization {
 
     }
 
+    @AfterMethod
+    public void driverClose() {
+        driver.close();
+    }
 }
