@@ -1,5 +1,6 @@
 package tests.Api;
 
+import io.qameta.allure.*;
 import entities.Board;
 import entities.Card;
 import entities.Column;
@@ -8,11 +9,16 @@ import org.testng.annotations.AfterMethod;
 import org.testng.annotations.Test;
 import resources.RestApiMethods;
 
+import java.util.List;
+
 import static resources.RestApiMethods.*;
 
 public class TestCards {
 
+    @Epic(value = "Api")
+    @Feature(value = "Tests with Cards")
     @Test
+    @Description(value = "Test check create card")
     public void createCards() {
         //precondition
         Board board = RestApiMethods.preConditionBoard("myTestCreateCards");
@@ -26,22 +32,25 @@ public class TestCards {
 
     }
 
-
+    @Epic(value = "Api")
+    @Feature(value = "Tests with Cards")
     @Test
+    @Description(value = "Test check update Card")
     public void updateCard() {
         //precondition
-        Board board = RestApiMethods.preConditionBoard("myTestUpdateCard");
-        Column column = RestApiMethods.getColumn(board.getId()).get(0);
-        Card firstCard = new Card("MyFirstTaskOriginalName");
-        Card secondCard = new Card("MySecondTaskOriginalName");
-        RestApiMethods.createCard(column, firstCard);
-        RestApiMethods.createCard(column, secondCard);
+        Board board = RestApiMethods.createFullBoard("MyFirstTaskOriginalName", "MySecondTaskOriginalName");
+        List<Card> cards = RestApiMethods.getCards(board.getId());
 
         //test
-        RestApiMethods.updateCard("name", "newCardName_first", firstCard.getId());
+        Card firstCard = getCard(cards.get(0).getId());
+        Card secondCard = getCard(cards.get(1).getId());
+
+        RestApiMethods.updateCard("name", "newCardName_first", cards.get(0).getId());
+
         Card actualFirstCard = getCard(firstCard.getId());
         Card actualSecondCard = getCard(secondCard.getId());
 
+        //check
         Assert.assertNotEquals(firstCard.getName(), actualFirstCard.getName());
         Assert.assertEquals(secondCard.getName(), actualSecondCard.getName());
 

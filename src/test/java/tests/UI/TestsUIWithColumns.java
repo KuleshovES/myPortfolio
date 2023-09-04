@@ -1,6 +1,9 @@
 package tests.UI;
 
 import entities.Board;
+import io.qameta.allure.Description;
+import io.qameta.allure.Epic;
+import io.qameta.allure.Feature;
 import org.testng.Assert;
 import org.testng.annotations.AfterMethod;
 import org.testng.annotations.Test;
@@ -12,6 +15,9 @@ import static resources.ConfProperties.driver;
 
 public class TestsUIWithColumns {
 
+    @Epic(value = "UI")
+    @Feature(value = "Tests with Columns")
+    @Description(value = "Test check create Column By UI")
     @Test
     public void createColumnUI() throws InterruptedException {
         //-------Precondition
@@ -19,7 +25,7 @@ public class TestsUIWithColumns {
         RestApiMethods.createBoard(newBoard);
         driver = ConfProperties.preconditionWithLogin();
         BoardPage boardPage = new BoardPage();
-        boardPage.openBoard("myTestBoard");
+        boardPage.openBoard(newBoard.getName());
         //-------
 
         boardPage.createColumn("myTestColumn");

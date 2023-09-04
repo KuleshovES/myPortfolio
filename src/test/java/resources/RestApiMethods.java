@@ -7,6 +7,8 @@ import entities.Board;
 import entities.Card;
 import entities.Column;
 import entities.User;
+import io.qameta.allure.Allure;
+import io.qameta.allure.Step;
 import io.restassured.builder.RequestSpecBuilder;
 import io.restassured.http.ContentType;
 import io.restassured.specification.RequestSpecification;
@@ -32,7 +34,10 @@ public class RestApiMethods {
                     .build();
 
     //Preconditions
-    public static Board createFullBoard(String boardName, String columnName, String firstCardName, String secondCardName) {
+    @Step("Precondition: Create board with data")
+    public static Board createFullBoard(String firstCardName, String secondCardName) {
+        String boardName = "testBoard" + Math.random();
+        String columnName = "Backlog";
         Board board = RestApiMethods.preConditionBoard(boardName);
         Column column = RestApiMethods.preConditionColumn(columnName, board);
         Card firstCard = new Card(firstCardName);
@@ -42,6 +47,20 @@ public class RestApiMethods {
         return board;
     }
 
+    //TODO overload
+    @Step("Precondition: Create board with data")
+    public static Board createFullBoard() {
+        String boardName = "testBoard" + Math.random();
+        Board board = RestApiMethods.preConditionBoard(boardName);
+        Column column = RestApiMethods.preConditionColumn("Backlog", board);
+        Card firstCard = new Card("FirstTask");
+        Card secondCard = new Card("SecondTask");
+        RestApiMethods.preConditionCard(column, firstCard);
+        RestApiMethods.preConditionCard(column, secondCard);
+        return board;
+    }
+
+    @Step("Precondition: Create board {boardName}")
     public static Board preConditionBoard(String boardName) {
         Board board = new Board(boardName);
         RestApiMethods.createBoard(board);
@@ -49,6 +68,7 @@ public class RestApiMethods {
 
     }
 
+    @Step("Precondition: Create column {columnName}")
     public static Column preConditionColumn(String columnName, Board board) {
         Column column = new Column(columnName, board);
         RestApiMethods.createColumns(column, board);
@@ -56,6 +76,7 @@ public class RestApiMethods {
 
     }
 
+    @Step("Precondition: Create card")
     public static Card preConditionCard(Column column, Card externCard) {
         RestApiMethods.createCard(column, externCard);
         return externCard;
@@ -63,6 +84,7 @@ public class RestApiMethods {
     }
 
     //boards
+    @Step("Create board")
     public static Board createBoard(Board board) {
         String response;
         try {
@@ -85,6 +107,7 @@ public class RestApiMethods {
         return board;
     }
 
+    @Step("Get board {boardId}")
     public static Board getBoard(String boardId) {
         String resGetBoard;
         try {
@@ -105,6 +128,7 @@ public class RestApiMethods {
         return board;
     }
 
+    @Step("Closed board {boardId}")
     public static void closedBoard(String boardId) {
         try {
             LOGGER.info("Send request to closed Board");
@@ -122,6 +146,7 @@ public class RestApiMethods {
         }
     }
 
+    @Step("Delete board {boardId}")
     public static void deleteBoard(String boardId) {
         try {
             LOGGER.info("Start send request DELETE/board/" + boardId);
@@ -137,6 +162,7 @@ public class RestApiMethods {
         }
     }
 
+    @Step("Closed boards")
     public static void closedAllBoards() {
         User user = new User();
         User currentUser = getInfoUser(user);
@@ -147,6 +173,7 @@ public class RestApiMethods {
     }
 
     //Columns
+    @Step("Create column")
     public static Column createColumns(Column column, Board board) {
         String responseColumn;
         try {
@@ -170,6 +197,7 @@ public class RestApiMethods {
         return column;
     }
 
+    @Step("Get list columns from board {boardId}")
     public static List<Column> getColumn(String boardId) {
         List<Column> column;
         try {
@@ -193,6 +221,7 @@ public class RestApiMethods {
 
     }
 
+    @Step("Get column by filter from board")
     public static String getFilteredNameColumn(Board exBoard, Column exColumn) {
         LOGGER.info("Start filter2");
         String columnName = getColumn(exBoard.getId())
@@ -206,6 +235,7 @@ public class RestApiMethods {
     }
 
     //cards
+    @Step("Create Card")
     public static Card createCard(Column exColumn, Card exCard) {
         String response;
         try {
@@ -229,6 +259,7 @@ public class RestApiMethods {
         return exCard;
     }
 
+    @Step("Get Card by id {cardId}")
     public static Card getCard(String cardId) {
         String resGet;
         try {
@@ -249,6 +280,28 @@ public class RestApiMethods {
 
     }
 
+    @Step("Get Cards on Board by id {boardId}")
+    public static List<Card> getCards(String boardId) {
+        List<Card> cards;
+        String resGet;
+        try {
+            resGet = given()
+                    .spec(REQ_SPEC)
+                    .basePath("/boards/" + boardId + "/cards")
+                    .when().get()
+                    .then().statusCode(200)
+                    .extract().body().asString();
+        } catch (AssertionError ex) {
+            LOGGER.info("Not found board: " + boardId);
+            throw ex;
+        }
+        Gson gson = new Gson();
+        cards = gson.fromJson(resGet, new TypeToken<List<Card>>(){}.getType());
+        LOGGER.info("Response: " + resGet);
+        return cards;
+    }
+
+    @Step("Update Card by id {cardId}")
     public static void updateCard(String queryParams, String valueParams, String cardId) {
         try {
             LOGGER.info("Send request to update cards");
@@ -268,7 +321,7 @@ public class RestApiMethods {
     }
 
     //Users
-
+    @Step("Get info about User")
     public static User getInfoUser(User user) {
         String response;
         try {

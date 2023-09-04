@@ -1,5 +1,6 @@
 package trello;
 
+import io.qameta.allure.Step;
 import org.openqa.selenium.By;
 import org.openqa.selenium.NoSuchElementException;
 import org.openqa.selenium.WebElement;
@@ -30,16 +31,9 @@ public class BasePage {
     static String buttonLogOutAccountMenu = "//*[@data-testid=\"account-menu-logout\"]";
     static String buttonConfirmLogOut = "logout-submit";
 
-    //TODO change language
-    String actionMenu = "//*[@aria-label=\"Меню\"]";
-    String actionMenuConfirmClosedBoard = "//*[@value=\"Закрыть\"]";
-
-    String actionMenuButtonClosedBoard = ".js-close-board";
-    String buttonDeleteClosedBoard = "//*[@data-testid=\"close-board-delete-board-button\"]";
-    String buttonConfirmDeleteClosedBoard = "//*[@data-testid=\"close-board-delete-board-confirm-button\"]";
-
+    //boards
+    @Step ("Create board by UI with name: {boardName}")
     public void createNewBoard(String boardNameUI) {
-        System.out.println("Start create new Board: " + boardNameUI);
         wait.until(ExpectedConditions.elementToBeClickable(driver.findElement(By.xpath(buttonCreateNewBoard))));
         driver.findElement(By.xpath(buttonCreateNewBoard)).click();
         driver.findElement(By.xpath(InputNameBoard))
@@ -47,8 +41,8 @@ public class BasePage {
         driver.findElement(By.xpath(ButtonApplyCreateNewBoard)).click();
     }
 
+    @Step ("Create template board by UI with name: {boardName}")
     public void createNewBoardFromTemplate(String boardNameUI) {
-        System.out.println("Start create new Board From Template: " + boardNameUI);
         wait.until(ExpectedConditions.elementToBeClickable(driver.findElement(By.xpath(buttonCreateNewBoard))));
         driver.findElement(By.xpath(buttonCreateNewBoard)).click();
         driver.findElement(By.xpath(ButtonCreateFromTemplate)).click();
@@ -60,23 +54,28 @@ public class BasePage {
         wait.until(ExpectedConditions.elementToBeClickable(By.xpath(ButtonApplyCreateNewBoard))).click();
     }
 
+    //account
+    @Step ("Open account menu")
     public static void openAccountMenu() {
         driver.findElement(By.xpath(buttonOpenAccountMenu)).click();
 
     }
 
+    @Step ("Get Current Username")
     public String getCurrentUserName() {
         openAccountMenu();
         String locCurrentUserName = "//div[contains(@class, \"tS3UagTaVXEivA\")]";
         return driver.findElement(By.xpath(locCurrentUserName)).getAttribute("textContent");
     }
 
+    @Step ("LogOut")
     public static void logOut() {
         openAccountMenu();
         wait.until(ExpectedConditions.elementToBeClickable(By.xpath(buttonLogOutAccountMenu))).click();
         wait.until(ExpectedConditions.elementToBeClickable(By.id(buttonConfirmLogOut))).click();
     }
 
+    @Step ("Checking the opening of the main page")
     public boolean mainPageIsOpen () {
         boolean result;
 
@@ -92,28 +91,17 @@ public class BasePage {
     }
 
 
-    public String getActualNameActiveBoard() {
+    @Step ("Get actual name active board")
+    public String getActualNameActiveBoard() throws InterruptedException {
+        wait(1000);
         String name = driver.findElement(By.xpath(DisplayNameBoard))
                 .getAttribute("textContent");
-        System.out.println(name);
+
         return name;
     }
 
-    public void closedBoard() {
-        driver.findElement(By.xpath(actionMenu)).click();
-        wait.until(ExpectedConditions.elementToBeClickable(By.cssSelector(actionMenuButtonClosedBoard))).click();
-        wait.until(ExpectedConditions.elementToBeClickable(By.xpath(actionMenuConfirmClosedBoard))).click();
-
-    }
-
-    public void deleteBoard() {
-        wait.until(ExpectedConditions.elementToBeClickable(By.xpath(buttonDeleteClosedBoard))).click();
-        wait.until(ExpectedConditions.elementToBeClickable(By.xpath(buttonConfirmDeleteClosedBoard))).click();
-
-    }
-
-    public void openMainPage() throws InterruptedException {
-        wait(5000);
+    @Step ("Open main Page")
+    public void openMainPage() {
         driver.findElement(By.xpath(buttonMainPage)).click();
     }
 }

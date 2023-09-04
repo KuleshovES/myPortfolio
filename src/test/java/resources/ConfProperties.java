@@ -1,6 +1,7 @@
 package resources;
 
 import entities.Board;
+import io.qameta.allure.Step;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.chrome.ChromeOptions;
@@ -14,8 +15,9 @@ public class ConfProperties {
 
     public static WebDriver driver;
 
+    @Step("Prepare WebDriver")
     public static WebDriver chrome() {
-        System.setProperty("webdriver.chrome.driver", "C:\\tools\\chromedriver_win32\\chromedriver.exe");
+        System.setProperty("webdriver.chrome.driver", "webdriver/chromedriver.exe");
         ChromeOptions chromeOptions = new ChromeOptions();
         chromeOptions.addArguments("--start-maximized");
         driver = new ChromeDriver(chromeOptions);
@@ -23,6 +25,7 @@ public class ConfProperties {
         return driver;
     }
 
+    @Step("Precondition login")
     public static WebDriver preconditionWithLogin() throws InterruptedException {
         driver = chrome();
         LoginPage.login();

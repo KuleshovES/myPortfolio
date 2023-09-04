@@ -2,6 +2,9 @@ package tests.Api;
 
 import entities.Board;
 import entities.User;
+import io.qameta.allure.Description;
+import io.qameta.allure.Epic;
+import io.qameta.allure.Feature;
 import org.testng.annotations.Ignore;
 import org.testng.annotations.Test;
 import resources.RestApiMethods;
@@ -10,6 +13,9 @@ import static resources.RestApiMethods.*;
 
 public class OtherTests {
 
+    @Epic(value = "Api")
+    @Feature(value = "Other tests")
+    @Description(value = "Test check valid token")
     @Test
     public void getInfoAboutMe() throws InterruptedException {
         //This test only for check valid token
@@ -17,6 +23,9 @@ public class OtherTests {
         RestApiMethods.getInfoUser(user);
     }
 
+    @Epic(value = "Api")
+    @Feature(value = "Other tests")
+    @Description(value = "Special test for Fail")
     @Test
     public void checkGetCard() {
         //test for fail

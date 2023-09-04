@@ -1,5 +1,6 @@
 package trello;
 
+import io.qameta.allure.Step;
 import org.openqa.selenium.*;
 import org.openqa.selenium.interactions.Actions;
 import org.openqa.selenium.support.ui.ExpectedConditions;
@@ -9,7 +10,6 @@ import java.time.Duration;
 
 import static resources.ConfProperties.LOGGER;
 import static resources.ConfProperties.driver;
-//import static resources.ConfProperties.driver;
 
 public class BoardPage {
 
@@ -26,6 +26,8 @@ public class BoardPage {
     String inputFilter = "//input[@aria-placeholder]";
     String buttonAddNewColumn = ".js-add-list";
     String buttonSubmitAddColumn = "//*[@id=\"board\"]/div/form/div/input";
+    String labelBoardName = "//*[@data-testid=\"board-name-display\"]";
+    String inputBoardName = "//*[@data-testid=\"board-name-input\"]";
 
     //block edit Card
     String locCardNameEditCard = ".js-card-detail-title-input";
@@ -44,31 +46,8 @@ public class BoardPage {
     String addLabelGreen = "//div[@data-color=\"green\"]";
     String addLabelBlue = "//div[@data-color=\"blue\"]";
 
-
-
-
-    public void createColumn(String nameColumn) {
-        driver.findElement(By.cssSelector(buttonAddNewColumn)).click();
-        wait.until(ExpectedConditions.elementToBeClickable(By.cssSelector(".list-name-input")))
-                .sendKeys(nameColumn);
-        driver.findElement(By.xpath(buttonSubmitAddColumn)).click();
-    }
-
-    public boolean columnByNameIsDisplayed (String name) {
-        String locFindColumn = "//*[@aria-label=\"" + name + "\"]";
-        boolean res;
-        LOGGER.info("Start searching column = " + name);
-        try {
-            driver.findElement(By.xpath(locFindColumn)).isDisplayed();
-            LOGGER.info("Column find!");
-            res = true;
-        } catch (NoSuchElementException ex) {
-            LOGGER.info("Column not find!");
-            res = false;
-        }
-        return res;
-    }
-
+    //boards
+    @Step("Open board on UI by name: {nameBoard}")
     public void openBoard(String nameBoard) {
         String locatorBoard = "//*[@title=\"" + nameBoard + "\"]";
         wait.until(ExpectedConditions.elementToBeClickable(By.xpath(locatorBoard)));
@@ -76,6 +55,36 @@ public class BoardPage {
 
     }
 
+    @Step("Update board on UI by name: {nameBoard}")
+    public void updateBoardName(String newBoardNameUI) {
+        driver.findElement(By.xpath(labelBoardName)).click();
+        driver.findElement(By.xpath(inputBoardName)).sendKeys(newBoardNameUI);
+        driver.findElement(By.xpath(inputBoardName)).sendKeys(Keys.ENTER);
+    }
+
+    @Step("Show closed boards on UI")
+    public boolean showClosedBoards() {
+        boolean result;
+        driver.findElement(By.cssSelector(buttonShowedClosedBoards)).click();
+        try {
+            LOGGER.info("Try find Closed Boards");
+            driver.findElement(By.xpath("//a[text()='showClosedBoards']")).isDisplayed();
+            result = true;
+
+        } catch (NoSuchElementException ex) {
+            LOGGER.info("Closed Boards not found");
+            result = false;
+        }
+        return result;
+    }
+
+    @Step("Get board name on UI")
+    public String getBoardNameUI() {
+        return driver.findElement(By.xpath(labelBoardName)).getAttribute("textContent");
+    }
+
+    //cards
+    @Step("Creating a card on UI with a name: {nameCard}")
     public void createCard(String nameCard) throws InterruptedException {
 
         Thread.sleep(1000); //BAD!
@@ -101,13 +110,7 @@ public class BoardPage {
 
     }
 
-    public String getActualCardNameInActiveBoard() {
-        wait.until(ExpectedConditions.visibilityOfElementLocated(By.xpath(firstCardInActiveBoard)));
-        String name = driver.findElement(By.xpath(firstCardInActiveBoard))
-                .getAttribute("textContent");
-        return name;
-    }
-
+    @Step("Updating a card on UI with a new name: {newName}")
     public void updateCardName(String newName) {
 
         driver.findElement(By.xpath("//span[text()='FirstTask']")).click();
@@ -119,6 +122,7 @@ public class BoardPage {
 
     }
 
+    @Step("Copying a card on UI with a new name: {copiedCardName}")
     public void copyCard(String copiedCardName) {
 
         driver.findElement(By.xpath("//span[text()='FirstTask']")).click();
@@ -132,6 +136,15 @@ public class BoardPage {
 
     }
 
+    @Step("Get actual card name on active board")
+    public String getActualCardNameInActiveBoard() {
+        wait.until(ExpectedConditions.visibilityOfElementLocated(By.xpath(firstCardInActiveBoard)));
+        String name = driver.findElement(By.xpath(firstCardInActiveBoard))
+                .getAttribute("outerText");
+        return name;
+    }
+
+    @Step("Removing a card in the UI with the name: {cardName}")
     public void deleteCard(String cardName) {
         String elCardByName = "//span[text()='" + cardName + "']";
         driver.findElement(By.xpath(elCardByName)).click();
@@ -140,22 +153,7 @@ public class BoardPage {
         driver.findElement(By.cssSelector(buttonConfirmPopover)).click();
 
     }
-
-    public boolean cardByNameIsNotExist(String cardName) {
-        LOGGER.info("Start check exist card: " + cardName);
-        String elCardByName = "//span[text()='" + cardName + "']";
-        boolean result;
-
-        try {
-            result = !(driver.findElement(By.xpath(elCardByName)).isDisplayed());
-            LOGGER.info("Find card by name :" + cardName);
-        } catch (NoSuchElementException ex) {
-            result = true;
-            LOGGER.info("Card not found by name :" + cardName);
-        }
-        return result;
-    }
-
+    @Step("Moving a card in the UI with the name: {cardName}")
     public void moveCardByDrag(String cardName) {
 
         String locCardByName = "//span[text()='" + cardName + "']";
@@ -171,6 +169,46 @@ public class BoardPage {
 
     }
 
+    @Step("Adding a label in the UI to a card: {cardName}")
+    public void addLabelToCard(String cardName) {
+        String elCardByName = "//span[text()='" + cardName + "']";
+        driver.findElement(By.xpath(elCardByName)).click();
+        driver.findElement(By.cssSelector(buttonAddLabelToCardInEdit)).click();
+
+        driver.findElement(By.xpath(addLabelGreen)).click();
+        driver.findElement(By.xpath(addLabelBlue)).click();
+
+        driver.findElement(By.xpath(buttonClosePopover)).click();
+        driver.findElement(By.cssSelector(locClosedEditCard)).click();
+    }
+
+    @Step("Filter in UI by value: {filterText}")
+    public void filteredCardOnBoard(String filterText) throws InterruptedException {
+        driver.findElement(By.xpath(buttonFiltered)).click();
+        wait.until(ExpectedConditions.visibilityOfElementLocated(By.xpath(inputFilter))).sendKeys(filterText);
+        wait.until(ExpectedConditions.attributeContains(By.xpath(inputFilter), "defaultValue", filterText));
+        wait.until(ExpectedConditions.invisibilityOfElementLocated(By.xpath(defaultSecondTask)));
+
+    }
+
+    @Step("Checking for existence in the card UI: {cardName}")
+    public boolean cardByNameIsNotExist(String cardName) {
+        LOGGER.info("Start check exist card: " + cardName);
+        String elCardByName = "//span[text()='" + cardName + "']";
+        boolean result;
+
+        try {
+            result = !(driver.findElement(By.xpath(elCardByName)).isDisplayed());
+            LOGGER.info("Find card by name :" + cardName);
+        } catch (NoSuchElementException ex) {
+            result = true;
+            LOGGER.info("Card not found by name :" + cardName);
+        }
+        return result;
+    }
+
+    //TODO need change logic
+    @Step("Checking cardInSecondList by UI for card: {cardName}")
     public boolean cardInSecondList(String cardName) {
         String locCardByName = "//span[text()='" + cardName + "']";
         WebElement elSecondList = driver.findElement(By.xpath(locSecondList));
@@ -188,18 +226,7 @@ public class BoardPage {
         }
     }
 
-    public void addLabelToCard(String cardName) {
-        String elCardByName = "//span[text()='" + cardName + "']";
-        driver.findElement(By.xpath(elCardByName)).click();
-        driver.findElement(By.cssSelector(buttonAddLabelToCardInEdit)).click();
-
-        driver.findElement(By.xpath(addLabelGreen)).click();
-        driver.findElement(By.xpath(addLabelBlue)).click();
-
-        driver.findElement(By.xpath(buttonClosePopover)).click();
-        driver.findElement(By.cssSelector(locClosedEditCard)).click();
-    }
-
+    @Step("Checking for label presence in UI color: {color}")
     public boolean checkLabelOnCardExists(String color) {
         String locLabelColor = "//button[@data-color=\"" + color + "\"]";
         boolean result;
@@ -215,14 +242,7 @@ public class BoardPage {
 
     }
 
-    public void filteredCardOnBoard(String filterText) throws InterruptedException {
-        driver.findElement(By.xpath(buttonFiltered)).click();
-        wait.until(ExpectedConditions.visibilityOfElementLocated(By.xpath(inputFilter))).sendKeys(filterText);
-        wait.until(ExpectedConditions.attributeContains(By.xpath(inputFilter), "defaultValue", filterText));
-        wait.until(ExpectedConditions.invisibilityOfElementLocated(By.xpath(defaultSecondTask)));
-
-    }
-
+    @Step("Checking the display of a card in UI by name: {cardName}")
     public boolean cardIsDisplayed(String cardName) {
 
         LOGGER.info("Start check card is displayed: " + cardName);
@@ -239,19 +259,29 @@ public class BoardPage {
         return result;
     }
 
-    public boolean showClosedBoards() {
-        boolean result;
-        driver.findElement(By.cssSelector(buttonShowedClosedBoards)).click();
-        try {
-            LOGGER.info("Try find Closed Boards");
-            driver.findElement(By.xpath("//a[text()='showClosedBoards']")).isDisplayed();
-            result = true;
+    //columns
+    @Step("Creating a Column on UI with a name: {nameColumn}")
+    public void createColumn(String nameColumn) {
+        driver.findElement(By.cssSelector(buttonAddNewColumn)).click();
+        wait.until(ExpectedConditions.elementToBeClickable(By.cssSelector(".list-name-input")))
+                .sendKeys(nameColumn);
+        driver.findElement(By.xpath(buttonSubmitAddColumn)).click();
+    }
 
+    @Step("Checking the display of a column in UI by name: {name}")
+    public boolean columnByNameIsDisplayed(String name) {
+        String locFindColumn = "//*[@aria-label=\"" + name + "\"]";
+        boolean res;
+        LOGGER.info("Start searching column = " + name);
+        try {
+            driver.findElement(By.xpath(locFindColumn)).isDisplayed();
+            LOGGER.info("Column find!");
+            res = true;
         } catch (NoSuchElementException ex) {
-            LOGGER.info("Closed Boards not found");
-            result = false;
+            LOGGER.info("Column not find!");
+            res = false;
         }
-        return result;
+        return res;
     }
 
 }

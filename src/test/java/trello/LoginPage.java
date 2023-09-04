@@ -1,5 +1,6 @@
 package trello;
 
+import io.qameta.allure.Step;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.support.ui.ExpectedConditions;
@@ -17,9 +18,10 @@ public class LoginPage {
 
     static String buttonViewAllBoards = "//button[contains(@class, 'view-all-closed-boards-button')]";
 
+    @Step("LogIn")
     public static void login() throws InterruptedException {
 
-        driver.get("https://trello.com/login");
+        driver.get("https://trello.com/en/login");
         Thread.sleep(1000);
 
         wait.until(ExpectedConditions.elementToBeClickable(driver.findElement(By.id("user"))))
