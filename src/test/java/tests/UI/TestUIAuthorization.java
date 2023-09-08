@@ -1,5 +1,6 @@
 package tests.UI;
 
+import Robots.BaseRobot;
 import entities.User;
 import io.qameta.allure.Description;
 import io.qameta.allure.Epic;
@@ -7,25 +8,28 @@ import io.qameta.allure.Feature;
 import io.qameta.allure.Flaky;
 import org.testng.Assert;
 import org.testng.annotations.AfterMethod;
+import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 import resources.ConfProperties;
 import resources.RestApiMethods;
-import trello.BasePage;
 
 import static resources.ConfProperties.driver;
 
 public class TestUIAuthorization {
+    private BaseRobot baseRobot = new BaseRobot();
+    private User user = new User();
+
+    @BeforeMethod
+    public void openDriver() throws InterruptedException {
+        driver = ConfProperties.preconditionWithLogin();
+    }
 
     @Epic(value = "UI")
     @Feature(value = "Tests with Auth")
     @Description(value = "Test check login By UI")
     @Test
-    public void sigInUI() throws InterruptedException {
-        driver = ConfProperties.preconditionWithLogin();
-        User user = new User();
-        BasePage basePage = new BasePage();
-
-        Assert.assertEquals(basePage.getCurrentUserName(), RestApiMethods.getInfoUser(user).getFullName());
+    public void sigInUI() {
+        Assert.assertEquals(baseRobot.currentUserNameByUI(), RestApiMethods.getInfoUser(user).getFullName());
 
     }
 
@@ -35,12 +39,9 @@ public class TestUIAuthorization {
     @Flaky
     @Test
     public void logOutUI() throws InterruptedException {
-        driver = ConfProperties.preconditionWithLogin();
-        BasePage basePage = new BasePage();
-
-        basePage.logOut();
+        baseRobot.logOutByUI();
         Thread.sleep(2000);
-        Assert.assertTrue(basePage.mainPageIsOpen());
+        Assert.assertTrue(baseRobot.checkingOpenedMainPageByUI());
 
     }
 

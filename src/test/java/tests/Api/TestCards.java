@@ -38,7 +38,7 @@ public class TestCards {
     @Description(value = "Test check update Card")
     public void updateCard() {
         //precondition
-        Board board = RestApiMethods.createFullBoard("MyFirstTaskOriginalName", "MySecondTaskOriginalName");
+        Board board = RestApiMethods.createFullBoard("sd","sd","MyFirstTaskOriginalName", "MySecondTaskOriginalName");
         List<Card> cards = RestApiMethods.getCards(board.getId());
 
         //test

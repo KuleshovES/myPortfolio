@@ -15,44 +15,42 @@ public class BoardPage {
 
     public final WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(3));
 
-    String firstCardInActiveBoard = "//*[@class=\"list-card-title js-card-name\"]";
-    String defaultSecondTask = "//span[text()='SecondTask']";
-    String buttonShowedClosedBoards = ".view-all-closed-boards-button";
+    private final String firstCardInActiveBoard = "//*[@class=\"list-card-title js-card-name\"]";
+    private final String defaultSecondTask = "//span[text()='SecondTask']";
+
 
     //open board
-    String locFirstList = "//*[@aria-label=\"Backlog\"]";
-    String locSecondList = "//*[@aria-label=\"To Do\"]";
-    String buttonFiltered = "//*[@data-testid=\"filter-popover-button\"]";
-    String inputFilter = "//input[@aria-placeholder]";
-    String buttonAddNewColumn = ".js-add-list";
-    String buttonSubmitAddColumn = "//*[@id=\"board\"]/div/form/div/input";
-    String labelBoardName = "//*[@data-testid=\"board-name-display\"]";
-    String inputBoardName = "//*[@data-testid=\"board-name-input\"]";
+    private final String locFirstList = "//*[@aria-label=\"Backlog\"]";
+    private final String locSecondList = "//*[@aria-label=\"To Do\"]";
+    private final String buttonFiltered = "//*[@data-testid=\"filter-popover-button\"]";
+    private final String inputFilter = "//input[@aria-placeholder]";
+    private final String buttonAddNewColumn = ".js-add-list";
+    private final String buttonSubmitAddColumn = "//*[@id=\"board\"]/div/form/div/input";
+    private final String labelBoardName = "//*[@data-testid=\"board-name-display\"]";
+    private final String inputBoardName = "//*[@data-testid=\"board-name-input\"]";
 
     //block edit Card
-    String locCardNameEditCard = ".js-card-detail-title-input";
-    String locClosedEditCard = ".js-close-window";
+    private final String locCardNameEditCard = ".js-card-detail-title-input";
+    private final String locClosedEditCard = ".js-close-window";
 
-    String buttonCopyCardInEdit = ".js-copy-card";
-    String buttonArchiveCardInEdit = ".js-archive-card";
-    String buttonDeleteCardInEdit = ".js-delete-card";
-    String buttonAddLabelToCardInEdit = ".js-edit-labels";
+    private final String buttonCopyCardInEdit = ".js-copy-card";
+    private final String buttonArchiveCardInEdit = ".js-archive-card";
+    private final String buttonDeleteCardInEdit = ".js-delete-card";
+    private final String buttonAddLabelToCardInEdit = ".js-edit-labels";
 
     //block pop-over
-    String buttonSubmitPopover = ".js-submit";
-    String buttonConfirmPopover = ".js-confirm";
-    String buttonClosePopover = "//*[@data-testid=\"popover-close\"]";
-    String textAreaCopyCard = "//textarea[@name=\"name\"]";
-    String addLabelGreen = "//div[@data-color=\"green\"]";
-    String addLabelBlue = "//div[@data-color=\"blue\"]";
+    private final String buttonSubmitPopover = ".js-submit";
+    private final String buttonConfirmPopover = ".js-confirm";
+    private final String buttonClosePopover = "//*[@data-testid=\"popover-close\"]";
+    private final String textAreaCopyCard = "//textarea[@name=\"name\"]";
 
     //boards
     @Step("Open board on UI by name: {nameBoard}")
-    public void openBoard(String nameBoard) {
+    public BoardPage openBoard(String nameBoard) {
         String locatorBoard = "//*[@title=\"" + nameBoard + "\"]";
         wait.until(ExpectedConditions.elementToBeClickable(By.xpath(locatorBoard)));
         driver.findElement(By.xpath(locatorBoard)).click();
-
+        return this;
     }
 
     @Step("Update board on UI by name: {nameBoard}")
@@ -62,21 +60,7 @@ public class BoardPage {
         driver.findElement(By.xpath(inputBoardName)).sendKeys(Keys.ENTER);
     }
 
-    @Step("Show closed boards on UI")
-    public boolean showClosedBoards() {
-        boolean result;
-        driver.findElement(By.cssSelector(buttonShowedClosedBoards)).click();
-        try {
-            LOGGER.info("Try find Closed Boards");
-            driver.findElement(By.xpath("//a[text()='showClosedBoards']")).isDisplayed();
-            result = true;
 
-        } catch (NoSuchElementException ex) {
-            LOGGER.info("Closed Boards not found");
-            result = false;
-        }
-        return result;
-    }
 
     @Step("Get board name on UI")
     public String getBoardNameUI() {
@@ -84,6 +68,7 @@ public class BoardPage {
     }
 
     //cards
+    //TODO bad!!!
     @Step("Creating a card on UI with a name: {nameCard}")
     public void createCard(String nameCard) throws InterruptedException {
 
@@ -123,7 +108,7 @@ public class BoardPage {
     }
 
     @Step("Copying a card on UI with a new name: {copiedCardName}")
-    public void copyCard(String copiedCardName) {
+    public BoardPage copyCard(String copiedCardName) {
 
         driver.findElement(By.xpath("//span[text()='FirstTask']")).click();
         driver.findElement(By.cssSelector(buttonCopyCardInEdit)).click();
@@ -133,7 +118,7 @@ public class BoardPage {
 
         driver.findElement(By.cssSelector(buttonSubmitPopover)).click();
         driver.findElement(By.cssSelector(locClosedEditCard)).click();
-
+        return this;
     }
 
     @Step("Get actual card name on active board")
@@ -147,7 +132,8 @@ public class BoardPage {
     @Step("Removing a card in the UI with the name: {cardName}")
     public void deleteCard(String cardName) {
         String elCardByName = "//span[text()='" + cardName + "']";
-        driver.findElement(By.xpath(elCardByName)).click();
+        wait.until(ExpectedConditions.elementToBeClickable(By.xpath(elCardByName))).click();
+        //driver.findElement(By.xpath(elCardByName)).click();
         driver.findElement(By.cssSelector(buttonArchiveCardInEdit)).click();
         driver.findElement(By.cssSelector(buttonDeleteCardInEdit)).click();
         driver.findElement(By.cssSelector(buttonConfirmPopover)).click();
@@ -170,20 +156,21 @@ public class BoardPage {
     }
 
     @Step("Adding a label in the UI to a card: {cardName}")
-    public void addLabelToCard(String cardName) {
+    public void addLabelToCard(String cardName, String color) {
         String elCardByName = "//span[text()='" + cardName + "']";
+        String addLabelColor = "//div[@data-color=\""+ color.toLowerCase() +"\"]";
         driver.findElement(By.xpath(elCardByName)).click();
         driver.findElement(By.cssSelector(buttonAddLabelToCardInEdit)).click();
 
-        driver.findElement(By.xpath(addLabelGreen)).click();
-        driver.findElement(By.xpath(addLabelBlue)).click();
+        driver.findElement(By.xpath(addLabelColor)).click();
+        //driver.findElement(By.xpath(addLabelBlue)).click();
 
         driver.findElement(By.xpath(buttonClosePopover)).click();
         driver.findElement(By.cssSelector(locClosedEditCard)).click();
     }
 
     @Step("Filter in UI by value: {filterText}")
-    public void filteredCardOnBoard(String filterText) throws InterruptedException {
+    public void filteredCardOnBoard(String filterText) {
         driver.findElement(By.xpath(buttonFiltered)).click();
         wait.until(ExpectedConditions.visibilityOfElementLocated(By.xpath(inputFilter))).sendKeys(filterText);
         wait.until(ExpectedConditions.attributeContains(By.xpath(inputFilter), "defaultValue", filterText));
@@ -192,16 +179,16 @@ public class BoardPage {
     }
 
     @Step("Checking for existence in the card UI: {cardName}")
-    public boolean cardByNameIsNotExist(String cardName) {
+    public boolean cardByNameIsExist(String cardName) {
         LOGGER.info("Start check exist card: " + cardName);
         String elCardByName = "//span[text()='" + cardName + "']";
         boolean result;
 
         try {
-            result = !(driver.findElement(By.xpath(elCardByName)).isDisplayed());
+            result = (driver.findElement(By.xpath(elCardByName)).isDisplayed());
             LOGGER.info("Find card by name :" + cardName);
         } catch (NoSuchElementException ex) {
-            result = true;
+            result = false;
             LOGGER.info("Card not found by name :" + cardName);
         }
         return result;

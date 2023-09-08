@@ -1,5 +1,7 @@
 package tests.UI;
 
+import Robots.BaseRobot;
+import Robots.BoardRobot;
 import entities.Board;
 import io.qameta.allure.Description;
 import io.qameta.allure.Epic;
@@ -16,6 +18,12 @@ import trello.BoardPage;
 import static resources.ConfProperties.driver;
 
 public class TestsUIWithBoards {
+    private BaseRobot baseRobot = new BaseRobot();
+    private BoardRobot boardRobot = new BoardRobot();
+    private final String defaultBoardName = "MyTestBoard";
+    private final String defaultColumnName = "Backlog";
+    private final String defaultFirstCardName = "FirstTask";
+    private final String defaultSecondCardName = "SecondTask";
 
     @Epic(value = "UI")
     @Feature(value = "Tests with Boards")
@@ -24,12 +32,9 @@ public class TestsUIWithBoards {
     public void createBoardSimpleUI() throws InterruptedException {
         //precondition
         driver = ConfProperties.preconditionWithLogin();
-        BasePage expectedBoard = new BasePage();
 
-        //test
-        expectedBoard.createNewBoard("createBoardSimpleUI");
-        Assert.assertEquals("createBoardSimpleUI", expectedBoard.getActualNameActiveBoard());
-
+        baseRobot.createBoardByUI(defaultBoardName);
+        Assert.assertEquals(defaultBoardName, baseRobot.getNameFirstBoardByUI());
     }
 
     @Epic(value = "UI")
@@ -40,11 +45,9 @@ public class TestsUIWithBoards {
     public void createBoardWithTemplateUI() throws InterruptedException {
         //precondition
         driver = ConfProperties.preconditionWithLogin();
-        BasePage basePage = new BasePage();
 
-        //test
-        basePage.createNewBoardFromTemplate("createBoardWithTemplateUI");
-        Assert.assertEquals("createBoardWithTemplateUI", basePage.getActualNameActiveBoard());
+        baseRobot.createTemplateBoardByUI(defaultBoardName);
+        Assert.assertEquals(defaultBoardName, baseRobot.getNameFirstBoardByUI());
 
     }
 
@@ -54,15 +57,12 @@ public class TestsUIWithBoards {
     @Test
     public void updateBoardUI() throws InterruptedException {
         //precondition
-        Board newBoard = RestApiMethods.createFullBoard();
         driver = ConfProperties.preconditionWithLogin();
-        BoardPage boardPage = new BoardPage();
-        boardPage.openBoard(newBoard.getName());
 
-        //test
-        String originalNameBoard = newBoard.getName();
-        boardPage.updateBoardName("new board name");
-        Assert.assertNotEquals(originalNameBoard, boardPage.getBoardNameUI());
+        String newBoardName = "new name";
+        Board newBoard = boardRobot.createFullBoardByRest(defaultBoardName, defaultColumnName, defaultFirstCardName, defaultSecondCardName);
+        boardRobot.updateBoardNameByUI(newBoard,newBoardName);
+        Assert.assertNotEquals(defaultBoardName, boardRobot.getNameBoardUI());
 
     }
 
@@ -72,20 +72,19 @@ public class TestsUIWithBoards {
     @Test
     public void showClosedBoards() throws InterruptedException {
         //precondition unusual
-        Board newBoard = RestApiMethods.createFullBoard();
-        driver = ConfProperties.preconditionWithLogin();
-        BoardPage boardPage = new BoardPage();
+        Board newBoard = boardRobot.createFullBoardByRest(defaultBoardName, defaultColumnName, defaultFirstCardName, defaultSecondCardName);
 
-        //test
-        RestApiMethods.closedBoard(newBoard.getId());
-        Assert.assertTrue(boardPage.showClosedBoards());
+        driver = ConfProperties.preconditionWithLogin();
+
+        boardRobot.closedBoardByRest(newBoard.getId());
+        Assert.assertTrue(baseRobot.showClosedBoardByUI());
 
     }
 
     @AfterMethod
     public void clearAndCloseAfterTest() throws InterruptedException {
         RestApiMethods.closedAllBoards();
-        Thread.sleep(1000);
+        Thread.sleep(5000);
         driver.close();
     }
 

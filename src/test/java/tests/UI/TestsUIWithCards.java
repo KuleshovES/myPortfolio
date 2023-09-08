@@ -1,5 +1,6 @@
 package tests.UI;
 
+import Robots.BoardRobot;
 import entities.Board;
 
 import io.qameta.allure.Description;
@@ -16,21 +17,28 @@ import static resources.ConfProperties.driver;
 
 
 public class TestsUIWithCards {
+    private BoardRobot boardRobot = new BoardRobot();
+    private final String newCardName = "newCardName";
+    private final String defaultBoardName = "MyTestBoard";
+    private final String defaultColumnName = "Backlog";
+    private final String defaultFirstCardName = "FirstTask";
+    private final String defaultSecondCardName = "SecondTask";
+
+
+    @BeforeMethod
+    public void openDriver() throws InterruptedException {
+        driver = ConfProperties.preconditionWithLogin();
+    }
 
     @Epic(value = "UI")
     @Feature(value = "Tests with Cards")
     @Description(value = "Test check create card By UI")
     @Test
     public void createCardUI() throws InterruptedException {
-        //precondition
-        Board expectedBoard = RestApiMethods.preConditionBoard("myTestCreateCardUI");
-        driver = ConfProperties.preconditionWithLogin();
-        BoardPage boardPage = new BoardPage();
-        boardPage.openBoard(expectedBoard.getName());
-
-        //test
-        boardPage.createCard("CardNameTestUI");
-        Assert.assertEquals("CardNameTestUI", boardPage.getActualCardNameInActiveBoard());
+        Board newBoard = boardRobot.createEmptyBoardByRest("MyTestBoard");
+        boardRobot.createCardByUI(newBoard, newCardName);
+        String actualNameFirstCard = boardRobot.getFirstCardUI();
+        Assert.assertEquals(actualNameFirstCard, newCardName);
 
     }
 
@@ -38,18 +46,11 @@ public class TestsUIWithCards {
     @Feature(value = "Tests with Cards")
     @Description(value = "Test check update card By UI")
     @Test
-    public void updateCardUI() throws InterruptedException {
-        //precondition
-        Board newBoard = RestApiMethods.createFullBoard();
-        driver = ConfProperties.preconditionWithLogin();
-        BoardPage boardPage = new BoardPage();
-        boardPage.openBoard(newBoard.getName());
-
-        //test
-        String oldNameFirstCard = boardPage.getActualCardNameInActiveBoard();
-        boardPage.updateCardName("NewCardName");
-        String actualNameFirstCard = boardPage.getActualCardNameInActiveBoard();
-        Assert.assertNotEquals(actualNameFirstCard, oldNameFirstCard);
+    public void updateCardUI() {
+        Board newBoard = boardRobot.createFullBoardByRest(defaultBoardName, defaultColumnName, defaultFirstCardName, defaultSecondCardName);
+        boardRobot.updateCardByUI(newBoard, newCardName);
+        String actualNameFirstCard = boardRobot.getFirstCardUI();
+        Assert.assertEquals(actualNameFirstCard, newCardName);
 
     }
 
@@ -57,17 +58,11 @@ public class TestsUIWithCards {
     @Feature(value = "Tests with Cards")
     @Description(value = "Test check copy card By UI")
     @Test
-    public void copyCardUI() throws InterruptedException {
-        String newNameCopiedCard = "Copied card";
-        //precondition
-        Board newBoard = RestApiMethods.createFullBoard("FirstTask", "SecondTask");
-        driver = ConfProperties.preconditionWithLogin();
-        BoardPage boardPage = new BoardPage();
-        boardPage.openBoard(newBoard.getName());
-
-        //test
-        boardPage.copyCard(newNameCopiedCard);
-        Assert.assertNotEquals("FirstTask", newNameCopiedCard);
+    public void copyCardUI() {
+        final String newNameCopiedCard = "Copied card";
+        Board newBoard = boardRobot.createFullBoardByRest(defaultBoardName, defaultColumnName, defaultFirstCardName, defaultSecondCardName);
+        boardRobot.copyCardByUI(newBoard, newNameCopiedCard);
+        Assert.assertNotEquals(boardRobot.getFirstCardUI(), newNameCopiedCard);
 
     }
 
@@ -75,17 +70,10 @@ public class TestsUIWithCards {
     @Feature(value = "Tests with Cards")
     @Description(value = "Test check delete card By UI")
     @Test
-    public void deleteCardUI() throws InterruptedException {
-        //precondition
-        Board newBoard = RestApiMethods.createFullBoard("FirstTask", "SecondTask");
-        driver = ConfProperties.preconditionWithLogin();
-        BoardPage boardPage = new BoardPage();
-        boardPage.openBoard(newBoard.getName());
-        String cardNameWillBeDeleted = boardPage.getActualCardNameInActiveBoard();
-
-        //test
-        boardPage.deleteCard(cardNameWillBeDeleted);
-        Assert.assertTrue(boardPage.cardByNameIsNotExist(cardNameWillBeDeleted));
+    public void deleteCardUI() {
+        Board newBoard = boardRobot.createFullBoardByRest(defaultBoardName, defaultColumnName, defaultFirstCardName, defaultSecondCardName);
+        boardRobot.deleteCardByUI(newBoard, defaultFirstCardName);
+        Assert.assertFalse(boardRobot.checkingExistenceCardByUI(defaultFirstCardName));
 
     }
 
@@ -93,17 +81,10 @@ public class TestsUIWithCards {
     @Feature(value = "Tests with Cards")
     @Description(value = "Test check drag card By UI")
     @Test
-    public void dragCardUI() throws InterruptedException {
-        //precondition
-        Board newBoard = RestApiMethods.createFullBoard("FirstTask", "SecondTask");
-        driver = ConfProperties.preconditionWithLogin();
-        BoardPage boardPage = new BoardPage();
-        boardPage.openBoard(newBoard.getName());
-
-        //test
+    public void dragCardUI() {
+        Board newBoard = boardRobot.createFullBoardByRest(defaultBoardName, defaultColumnName, defaultFirstCardName, defaultSecondCardName);
+        boardRobot.movedCardByUI(newBoard, defaultFirstCardName);
         //TODO assert doesn't work =( need check card in list2
-        boardPage.moveCardByDrag("FirstTask");
-        Assert.assertTrue(boardPage.cardInSecondList("FirstTask"));
 
     }
 
@@ -111,41 +92,26 @@ public class TestsUIWithCards {
     @Feature(value = "Tests with Cards")
     @Description(value = "Test check added label to card By UI")
     @Test
-    public void addLabelToCardUI() throws InterruptedException {
-        //precondition
-        Board newBoard = RestApiMethods.createFullBoard("FirstTask", "SecondTask");
-        driver = ConfProperties.preconditionWithLogin();
-        BoardPage boardPage = new BoardPage();
-        boardPage.openBoard(newBoard.getName());
-
-        //test
-        boardPage.addLabelToCard("FirstTask");
-        Assert.assertTrue(boardPage.checkLabelOnCardExists("green"));
-        Assert.assertTrue(boardPage.checkLabelOnCardExists("blue"));
-
+    public void addLabelToCardUI() {
+        Board newBoard = boardRobot.createFullBoardByRest(defaultBoardName, defaultColumnName, defaultFirstCardName, defaultSecondCardName);
+        boardRobot.addLabelToCardByUI(newBoard, defaultFirstCardName, "Green");
+        Assert.assertFalse(boardRobot.checkingExistenceLabelByUI("Green"));
     }
 
     @Epic(value = "UI")
     @Feature(value = "Tests with Cards")
     @Description(value = "Test check filtered card on board By UI")
     @Test
-    public void filteredCardOnBoardUI() throws InterruptedException {
-        //precondition
-        Board newBoard = RestApiMethods.createFullBoard("FirstTask", "SecondTask");
-        driver = ConfProperties.preconditionWithLogin();
-        BoardPage boardPage = new BoardPage();
-        boardPage.openBoard(newBoard.getName());
-
-        //test
-        boardPage.filteredCardOnBoard("First");
-        Assert.assertFalse(boardPage.cardIsDisplayed("SecondTask"));
+    public void filteredCardOnBoardUI() {
+        Board newBoard = boardRobot.createFullBoardByRest(defaultBoardName, defaultColumnName, defaultFirstCardName, defaultSecondCardName);
+        boardRobot.filterCardByUI(newBoard, "First");
+        Assert.assertFalse(boardRobot.checkingDisplayCardByUI("SecondTask"));
 
     }
 
     @AfterMethod
-    public void clearAndCloseAfterTest() throws InterruptedException {
+    public void clearAndCloseAfterTest() {
         RestApiMethods.closedAllBoards();
-        Thread.sleep(1000);
         driver.close();
     }
 

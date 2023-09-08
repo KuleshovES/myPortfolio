@@ -35,9 +35,7 @@ public class RestApiMethods {
 
     //Preconditions
     @Step("Precondition: Create board with data")
-    public static Board createFullBoard(String firstCardName, String secondCardName) {
-        String boardName = "testBoard" + Math.random();
-        String columnName = "Backlog";
+    public static Board createFullBoard(String boardName, String columnName, String firstCardName, String secondCardName) {
         Board board = RestApiMethods.preConditionBoard(boardName);
         Column column = RestApiMethods.preConditionColumn(columnName, board);
         Card firstCard = new Card(firstCardName);
@@ -47,17 +45,12 @@ public class RestApiMethods {
         return board;
     }
 
-    //TODO overload
-    @Step("Precondition: Create board with data")
-    public static Board createFullBoard() {
-        String boardName = "testBoard" + Math.random();
-        Board board = RestApiMethods.preConditionBoard(boardName);
-        Column column = RestApiMethods.preConditionColumn("Backlog", board);
-        Card firstCard = new Card("FirstTask");
-        Card secondCard = new Card("SecondTask");
-        RestApiMethods.preConditionCard(column, firstCard);
-        RestApiMethods.preConditionCard(column, secondCard);
+    @Step("Precondition: Create board {boardName}")
+    public static Board createEmptyBoard(String boardName) {
+        Board board = new Board(boardName);
+        RestApiMethods.createBoard(board);
         return board;
+
     }
 
     @Step("Precondition: Create board {boardName}")
